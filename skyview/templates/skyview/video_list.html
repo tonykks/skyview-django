@@ -1,0 +1,14 @@
+{% extends "skyview/base.html" %}
+
+{% block title %}{{ page_title }} | Skyview 드론 영상{% endblock %}
+
+{% block content %}
+<main>
+  <section class="row row--gallery" aria-label="{{ section_title }}">
+    <h2 class="row-title">{{ section_title }}</h2>
+    <div class="cards cards--gallery cards--{{ card_type }} {{ cols_class }}">
+      {% include "skyview/includes/video_cards.html" with empty_message="등록된 영상이 없습니다." %}
+    </div>
+  </section>
+</main>
+{% endblock %}

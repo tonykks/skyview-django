@@ -1,0 +1,8 @@
+<img
+  src="https://img.youtube.com/vi/{{ youtube_id }}/hqdefault.jpg"
+  alt="{{ alt }}"
+  {% if class_name %}class="{{ class_name }}"{% endif %}
+  {% if width %}width="{{ width }}"{% endif %}
+  {% if height %}height="{{ height }}"{% endif %}
+  onerror="this.onerror=null;this.src='https://img.youtube.com/vi/{{ youtube_id }}/mqdefault.jpg';"
+/>

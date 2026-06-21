@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Skyview 드론 영상{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'skyview/css/styles.css' %}" />
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body class="{% block body_class %}{% endblock %}">
+    <div class="page-wrapper">
+      <header class="site-header">
+        <img
+          class="header-image"
+          src="{% static 'skyview/images/main.png' %}"
+          alt="Tony Skyview"
+          width="1080"
+          height="180"
+        />
+        <nav class="main-nav" aria-label="주요 메뉴">
+          <a class="nav-circle" href="{% url 'home' %}" data-tooltip="Home" aria-label="Home">H</a>
+          <a class="nav-circle" href="{% url 'place_list' %}" data-tooltip="장소별영상" aria-label="장소별영상">P</a>
+          <a class="nav-circle" href="{% url 'landscape_videos' %}" data-tooltip="16:9" aria-label="16:9">L</a>
+          <a class="nav-circle" href="{% url 'shorts_videos' %}" data-tooltip="9:16" aria-label="9:16">S</a>
+          <a class="nav-circle" href="{% url 'about' %}" data-tooltip="About" aria-label="About">A</a>
+        </nav>
+      </header>
+
+      {% block content %}{% endblock %}
+
+      <footer class="site-footer">
+        <p class="site-footer__tagline">We see better when we rise above.</p>
+        <div class="site-footer__bar">
+          <p class="copyright">© 2026 Tony's SkyView</p>
+          {% if family_sites %}
+          <details class="family-dropdown">
+            <summary class="family-dropdown__toggle">Family Sites ▾</summary>
+            <ul class="family-dropdown__menu">
+              {% for site in family_sites %}
+              <li>
+                <a href="{{ site.url }}" target="_blank" rel="noopener noreferrer"
+                  >{{ site.title }}</a
+                >
+              </li>
+              {% endfor %}
+            </ul>
+          </details>
+          {% endif %}
+        </div>
+      </footer>
+    </div>
+
+    <div id="lightbox" class="lightbox" aria-hidden="true">
+      <div class="lightbox-inner">
+        <button type="button" class="lightbox-close" id="lb-close" aria-label="닫기">
+          Close ✕
+        </button>
+        <div id="lightbox-player" class="lightbox-player"></div>
+      </div>
+    </div>
+
+    <script src="{% static 'skyview/js/lightbox.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

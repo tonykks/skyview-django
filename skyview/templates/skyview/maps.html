@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tony's SkyView · Maps</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #0b1220;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+      }
+      .leaflet-tooltip.place-label {
+        background: rgba(255, 255, 255, 0.92);
+        border: 0;
+        border-radius: 12px;
+        padding: 6px 10px;
+        font-weight: 800;
+        font-size: 14px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+        color: #111827;
+      }
+      .leaflet-tooltip.place-label:before {
+        display: none;
+      }
+      .topbar {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 12px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+        z-index: 500;
+        backdrop-filter: blur(8px);
+      }
+      .topbar .title {
+        font-weight: 900;
+        color: #111827;
+        white-space: nowrap;
+      }
+      .topbar .meta {
+        font-weight: 800;
+        color: #111827;
+        opacity: 0.75;
+      }
+      .spacer {
+        flex: 1;
+      }
+      .btn {
+        border: 0;
+        border-radius: 14px;
+        padding: 8px 12px;
+        font-weight: 900;
+        cursor: pointer;
+        background: #1f3556;
+        color: #fff;
+      }
+      .btn.secondary {
+        background: #111827;
+      }
+      .btn.ghost {
+        background: rgba(31, 53, 86, 0.1);
+        color: #111827;
+      }
+      .toast {
+        position: absolute;
+        bottom: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(17, 24, 39, 0.92);
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 14px;
+        font-weight: 800;
+        z-index: 500;
+        display: none;
+      }
+      body.embed .topbar {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar" role="region" aria-label="Map Controls">
+      <div class="title">Tony's SkyView · Maps</div>
+      <div class="meta" id="count">Places: -</div>
+      <div class="spacer"></div>
+      <button class="btn ghost" id="fitBtn" type="button">Jeju Fit</button>
+      <button class="btn secondary" id="copyToggleBtn" type="button">
+        좌표복사 ON
+      </button>
+    </div>
+
+    <div id="map"></div>
+    <div id="toast" class="toast">복사됨</div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      const PLACES = {{ places_json|safe }};
+      const DEFAULT_CENTER = [33.35, 126.53];
+      const DEFAULT_ZOOM = 10;
+
+      const qs = new URLSearchParams(location.search);
+      const embed = qs.get("embed") === "1";
+      const admin = qs.get("admin") === "1";
+      if (embed) document.body.classList.add("embed");
+      if (!admin) document.body.classList.add("embed");
+
+      const qLat = parseFloat(qs.get("lat"));
+      const qLng = parseFloat(qs.get("lng"));
+      const qName = (qs.get("name") || "").trim();
+      const qPlace = (qs.get("place") || "").trim();
+      const hasPoint = Number.isFinite(qLat) && Number.isFinite(qLng);
+
+      const toastEl = document.getElementById("toast");
+      function toast(msg) {
+        toastEl.textContent = msg;
+        toastEl.style.display = "block";
+        clearTimeout(toastEl._t);
+        toastEl._t = setTimeout(function () {
+          toastEl.style.display = "none";
+        }, 900);
+      }
+
+      const map = L.map("map", { zoomControl: true }).setView(
+        DEFAULT_CENTER,
+        DEFAULT_ZOOM
+      );
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "© OpenStreetMap contributors",
+      }).addTo(map);
+
+      let copyEnabled = admin;
+      const copyToggleBtn = document.getElementById("copyToggleBtn");
+      if (copyToggleBtn) {
+        copyToggleBtn.addEventListener("click", function () {
+          copyEnabled = !copyEnabled;
+          copyToggleBtn.textContent = copyEnabled
+            ? "좌표복사 ON"
+            : "좌표복사 OFF";
+          toast(copyEnabled ? "좌표복사 ON" : "좌표복사 OFF");
+        });
+      }
+
+      map.on("click", function (e) {
+        if (!admin || !copyEnabled) return;
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        const text = lat.toFixed(6) + ", " + lng.toFixed(6);
+        if (navigator.clipboard) {
+          navigator.clipboard
+            .writeText(text)
+            .then(function () {
+              toast("좌표 복사됨");
+            })
+            .catch(function () {
+              toast("복사 실패");
+            });
+        }
+        L.popup()
+          .setLatLng(e.latlng)
+          .setContent(
+            "<b>좌표</b><br>" +
+              text +
+              "<br><small>(클립보드 복사)</small>"
+          )
+          .openOn(map);
+      });
+
+      const fitBtn = document.getElementById("fitBtn");
+      if (fitBtn) {
+        fitBtn.addEventListener("click", function () {
+          if (window.__bounds && window.__bounds.isValid()) {
+            map.fitBounds(window.__bounds, { padding: [40, 40] });
+          } else {
+            map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+          }
+        });
+      }
+
+      function isFiniteNum(n) {
+        return Number.isFinite(n) && !Number.isNaN(n);
+      }
+
+      function addPlaceMarker(p, permanentLabel) {
+        const marker = L.marker([p.lat, p.lng]).addTo(map);
+        marker.bindTooltip(p.name || "", {
+          permanent: !!permanentLabel,
+          direction: "top",
+          className: "place-label",
+        });
+        if (p.introUrl) {
+          marker.bindPopup(
+            "<b>" +
+              (p.name || "") +
+              '</b><br><a href="' +
+              p.introUrl +
+              '" target="_blank" rel="noopener">소개 페이지</a>'
+          );
+        } else {
+          marker.bindPopup("<b>" + (p.name || "") + "</b>");
+        }
+        return marker;
+      }
+
+      const cleaned = PLACES.filter(function (p) {
+        return p.name && isFiniteNum(p.lat) && isFiniteNum(p.lng);
+      });
+
+      const countEl = document.getElementById("count");
+      if (countEl) {
+        countEl.textContent = "Places: " + cleaned.length;
+      }
+
+      const bounds = L.latLngBounds([]);
+      cleaned.forEach(function (p) {
+        bounds.extend([p.lat, p.lng]);
+      });
+      window.__bounds = bounds;
+
+      if (hasPoint) {
+        const name = qName || qPlace || "위치";
+        addPlaceMarker({ name: name, introUrl: "", lat: qLat, lng: qLng }, true);
+        map.setView([qLat, qLng], 13);
+      } else if (qPlace) {
+        const target = cleaned.find(function (p) {
+          return p.name === qPlace;
+        });
+        if (target) {
+          addPlaceMarker(target, true);
+          map.setView([target.lat, target.lng], 13);
+        } else if (bounds.isValid()) {
+          cleaned.forEach(function (p) {
+            addPlaceMarker(p, true);
+          });
+          map.fitBounds(bounds, { padding: [40, 40] });
+        }
+      } else {
+        cleaned.forEach(function (p) {
+          addPlaceMarker(p, true);
+        });
+        if (bounds.isValid()) {
+          map.fitBounds(bounds, { padding: [40, 40] });
+        }
+      }
+    </script>
+  </body>
+</html>

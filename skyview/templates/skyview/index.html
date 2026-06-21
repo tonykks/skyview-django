@@ -1,0 +1,86 @@
+{% extends "skyview/base.html" %}
+
+{% block content %}
+<main>
+  {% if hero_video %}
+  <section
+    class="hero hero--playable"
+    aria-label="대표 영상"
+    data-youtube-id="{{ hero_video.youtube_id }}"
+    data-video-type="L"
+    role="button"
+    tabindex="0"
+  >
+    <div class="hero-media">
+      {% include "skyview/includes/youtube_thumbnail.html" with youtube_id=hero_video.youtube_id alt=hero_video.title|add:" 썸네일" class_name="hero-thumb" width=1280 height=720 only %}
+      <span class="hero-badge">대표 영상</span>
+      <div class="hero-caption">
+        <h1 class="hero-title">{{ hero_video.title }}</h1>
+        <span class="btn btn--play">▶ 재생</span>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="row" id="recommended" aria-label="추천 영상">
+    <h2 class="row-title">추천 드론 영상</h2>
+
+    <div class="row-sub">
+      <h3 class="row-subtitle">16:9 Landscape</h3>
+      <div class="cards cards--landscape cards--cols-5">
+        {% include "skyview/includes/video_cards.html" with videos=recommended_landscape card_type="landscape" empty_message="추천 Landscape 영상이 없습니다." only %}
+      </div>
+    </div>
+
+    <div class="row-sub">
+      <h3 class="row-subtitle">9:16 Shorts</h3>
+      <div class="cards cards--shorts cards--cols-7">
+        {% include "skyview/includes/video_cards.html" with videos=recommended_shorts card_type="shorts" empty_message="추천 Shorts 영상이 없습니다." only %}
+      </div>
+    </div>
+  </section>
+
+  <section class="row row--latest" id="latest" aria-label="최신 영상">
+    <h2 class="row-title">최신 드론 영상</h2>
+
+    <div class="row-sub">
+      <h3 class="row-subtitle">16:9 Landscape</h3>
+      <div class="cards cards--landscape cards--cols-5">
+        {% include "skyview/includes/video_cards.html" with videos=latest_landscape card_type="landscape" empty_message="최신 Landscape 영상이 없습니다." only %}
+      </div>
+    </div>
+
+    <div class="row-sub">
+      <h3 class="row-subtitle">9:16 Shorts</h3>
+      <div class="cards cards--shorts cards--cols-7">
+        {% include "skyview/includes/video_cards.html" with videos=latest_shorts card_type="shorts" empty_message="최신 Shorts 영상이 없습니다." only %}
+      </div>
+    </div>
+  </section>
+
+  {% if featured_place %}
+  <section class="row row--latest row--home-places" id="places" aria-label="장소별 영상">
+    <h2 class="row-title">장소별 드론 영상</h2>
+
+    <nav class="home-place-spotlight__nav" aria-label="장소 선택">
+      {% for nav_place in place_nav_places %}
+      <a
+        href="{% url 'place_detail' nav_place.slug %}"
+        class="home-place-nav__btn{% if nav_place.pk == featured_place.pk %} home-place-nav__btn--active{% endif %}"
+        >{{ nav_place.name }}</a
+      >
+      {% endfor %}
+      <a href="{% url 'place_all' %}" class="home-place-nav__btn home-place-nav__btn--all"
+        >전체보기</a
+      >
+    </nav>
+
+    <div class="home-place-spotlight__media">
+      <div class="cards cards--landscape cards--cols-5 cards--gallery">
+        {% include "skyview/includes/video_cards.html" with videos=featured_place_videos card_type="landscape" empty_message="등록된 Landscape 영상이 없습니다." only %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+</main>
+{% endblock %}

@@ -1,0 +1,10 @@
+<nav class="place-nav" aria-label="장소 선택">
+  {% for nav_place in nav_places %}
+  <a
+    href="{% url 'place_detail' nav_place.slug %}"
+    class="place-nav__btn{% if nav_place.pk == place.pk %} place-nav__btn--active{% endif %}"
+    >{{ nav_place.name }}</a
+  >
+  {% endfor %}
+  <a href="{% url 'place_all' %}" class="place-nav__btn place-nav__btn--all">전체보기</a>
+</nav>

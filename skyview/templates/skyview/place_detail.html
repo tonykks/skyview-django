@@ -1,0 +1,98 @@
+{% extends "skyview/base.html" %}
+{% load static %}
+
+{% block title %}{{ place.name }} | Skyview 드론 영상{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+{% endblock %}
+
+{% block content %}
+<main>
+  {% include "skyview/includes/place_nav.html" %}
+
+  <header class="place-header">
+    <div class="place-header__actions">
+      {% if place.intro_url %}
+      <button
+        type="button"
+        id="place-intro-btn"
+        class="place-header__title place-header__title--link"
+        data-intro-url="{{ place.intro_url }}"
+      >
+        {{ place.name }}
+      </button>
+      {% else %}
+      <span class="place-header__title place-header__title--static">{{ place.name }}</span>
+      {% endif %}
+      <button
+        id="place-location-btn"
+        class="btn btn--location"
+        type="button"
+        {% if not has_location %}disabled{% endif %}
+        data-lat="{{ place.latitude|default:'' }}"
+        data-lng="{{ place.longitude|default:'' }}"
+        data-name="{{ place.name }}"
+      >
+        위치
+      </button>
+    </div>
+    <p class="place-header__hint">위 타이틀을 클릭하면 소개 내용을 팝업으로 볼 수 있습니다</p>
+  </header>
+
+  <section class="row row--gallery" aria-label="{{ place.name }} 영상">
+    {% if video_rows %}
+    <div class="cards--place-rows">
+      {% for row in video_rows %}
+      <div class="cards--place-row cards--place-row--{{ row.layout }}">
+        {% include "skyview/includes/place_video_cards.html" with videos=row.videos %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty-message">등록된 영상 없음</p>
+    {% endif %}
+  </section>
+</main>
+
+<div id="intro-modal" class="map-modal" aria-hidden="true">
+  <div class="map-modal__dialog intro-modal__dialog">
+    <div class="map-modal__header">
+      <h3 class="map-modal__title" id="intro-modal-title">{{ place.name }} 소개</h3>
+      <button id="close-intro-modal-btn" class="btn btn--location" type="button">
+        Close ×
+      </button>
+    </div>
+    <iframe
+      id="intro-iframe"
+      class="intro-modal__frame"
+      title="{{ place.name }} 소개"
+      src="about:blank"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
+    <p class="map-modal__hint">Esc 키를 누르면 닫힙니다.</p>
+  </div>
+</div>
+
+<div id="map-modal" class="map-modal" aria-hidden="true">
+  <div class="map-modal__dialog">
+    <div class="map-modal__header">
+      <h3 class="map-modal__title" id="map-modal-title">위치</h3>
+      <button id="close-map-modal-btn" class="btn btn--location" type="button">
+        Close ×
+      </button>
+    </div>
+    <div id="place-map-modal-map" class="map-modal__map"></div>
+    <p class="map-modal__hint">※ 마우스 휠로 확대/축소할 수 있습니다.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'skyview/js/place.js' %}"></script>
+{% endblock %}

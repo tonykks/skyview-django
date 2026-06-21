@@ -1,0 +1,95 @@
+{% extends "skyview/base.html" %}
+{% load static %}
+
+{% block title %}About | Tony's SkyView{% endblock %}
+
+{% block content %}
+<main class="about-page">
+  <section class="row about-intro" aria-label="Tony's SkyView 소개">
+    <h1 class="about-title">Tony's SkyView</h1>
+
+    <div class="about-profile">
+      <img
+        src="{% static 'skyview/images/profile.jpg' %}"
+        alt="Tony's SkyView 프로필"
+        width="120"
+        height="120"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+      />
+      <div class="about-profile__placeholder" style="display: none" aria-hidden="true">
+        TS
+      </div>
+    </div>
+  </section>
+
+  <section class="row" aria-label="소개">
+    <div class="about-card card">
+      <p>안녕하세요.</p>
+      <p>
+        Tony's SkyView는 제주도의 자연과 풍경을<br />
+        드론 영상으로 기록하는 개인 프로젝트입니다.
+      </p>
+      <p>
+        높은 곳에서 바라보면<br />
+        익숙한 풍경도 새로운 모습으로 다가옵니다.
+      </p>
+      <p>이 공간에는</p>
+      <ul class="about-list">
+        <li>제주 풍경</li>
+        <li>산과 바다</li>
+        <li>그리고 자연 속에서 발견한 작은 이야기들이 담겨 있습니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="row" aria-label="Philosophy">
+    <div class="about-card card">
+      <h2 class="about-card__heading">Philosophy</h2>
+      <p>행복은</p>
+      <p>
+        내가 가장 좋아하는 것,<br />
+        내가 가장 잘하는 것,<br />
+        그리고 세상이 원하는 것의 교차점에서 온다고 생각합니다.
+      </p>
+      <p>
+        매일 좋아하는 일을 하며<br />
+        작은 행복을 기록해 나가고 있습니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="row" aria-label="Equipment">
+    <div class="about-card card">
+      <h2 class="about-card__heading">Equipment</h2>
+      <dl class="about-meta">
+        <dt>Drone</dt>
+        <dd>DJI Air-3 Drone</dd>
+        <dt>Editing</dt>
+        <dd>CapCut</dd>
+        <dt>Music</dt>
+        <dd>SUNO(AI Music)</dd>
+        <dt>Platform</dt>
+        <dd>YouTube</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="row" aria-label="Contact">
+    <div class="about-card card">
+      <h2 class="about-card__heading">Contact</h2>
+      <dl class="about-meta">
+        <dt>Email</dt>
+        <dd>
+          <a href="mailto:smile21c@korea.com">smile21c@korea.com</a>
+        </dd>
+        <dt>YouTube</dt>
+        <dd>
+          <a href="https://www.youtube.com/@smile21tony" target="_blank" rel="noopener noreferrer"
+            >Tony's SkyView</a
+          >
+        </dd>
+      </dl>
+    </div>
+  </section>
+</main>
+{% endblock %}
