@@ -51,6 +51,7 @@ DEBUG = _env_bool("DEBUG", default=True)
 
 ALLOWED_HOSTS = _env_list("ALLOWED_HOSTS")
 
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Application definition
 
@@ -139,7 +140,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"

@@ -84,12 +84,17 @@ Google Apps Script + Spreadsheet 기반 SkyView를 Django + SQLite + Django Admi
 - https://skyview.pythonanywhere.com/ 정상 동작
 - `changepassword admin`으로 Admin 로그인
 
-### Phase 7 — Admin UI 이슈 (미해결·기능 무관)
+### Phase 7 — Admin UI 이슈 (2026-06-21 발견)
 
 - PA Admin 필터가 오른쪽이 아닌 위쪽에 표시
-- Admin CSS Network 전부 200 (static 문제 아님)
-- 원인 추정: 반응형 breakpoint 또는 Django 5.2(PA) vs 6.x(로컬) 차이
-- zip 업로드 배포(`kwangsookim`)와 git 배포(`skyview`) 환경 차이 가능
+- Admin CSS Network 전부 200 (당시 static 404는 아닌 것으로 추정)
+- 초기 추정: 반응형 breakpoint 또는 Django 버전 차이
+
+### Phase 8 — Admin 필터 레이아웃 해결 (2026-06-22)
+
+- **원인:** Django 6.0.6 업그레이드 후 `staticfiles/`에 5.2 시절 admin CSS 잔존 (6.0 HTML + 5.2 CSS)
+- **해결:** `python manage.py collectstatic --clear --noinput` → Reload → Admin 정상 복구
+- **상세 기록:** [troubleshooting.md — 사례 1](troubleshooting.md#사례-1-django-admin-필터가-오른쪽이-아닌-위쪽에-표시됨)
 
 ---
 
@@ -101,7 +106,8 @@ skyview/
 ├── requirements.txt
 ├── README.md
 ├── docs/
-│   └── deployment_report_2026_06_21.md   ← 본 문서
+│   ├── deployment_report_2026_06_21.md   ← 본 문서
+│   └── troubleshooting.md                ← 트러블슈팅 기록
 ├── .gitignore
 ├── .env.example
 ├── .env                          (gitignore)
@@ -198,7 +204,8 @@ application = get_wsgi_application()
 3. PA: `cd ~/skyview-django && workon skyview-django-313 && git pull`
 4. (모델 변경 시) `python manage.py migrate`
 5. (static 변경 시) `python manage.py collectstatic --noinput`
-6. Web 탭 → **Reload**
+6. (**Django 업그레이드 시**) `python manage.py collectstatic --clear --noinput` — [사례 참고](troubleshooting.md)
+7. Web 탭 → **Reload**
 
 ### DB 백업
 
@@ -219,7 +226,7 @@ application = get_wsgi_application()
 | PA에서 clone 전 `.env` 생성 | 순서 재정리 |
 | `SECRET_KEY` 빈값 | `SECRET_KEY=$(...)` 후 `.env` 재작성 |
 | Bash 여러 줄 `python -c` | 한 줄 명령으로 분리 |
-| PA Admin 필터 위치 | CSS 200 — 버전/반응형 추정, 기능 무관 |
+| PA Admin 필터 위치 | `collectstatic --clear`로 5.2 CSS 잔존 제거 — [상세](troubleshooting.md) |
 | `W042` warning | `DEFAULT_AUTO_FIELD` 미설정 — 무시 가능 |
 | Admin ID/PW 모름 | `changepassword admin` |
 
@@ -239,8 +246,8 @@ application = get_wsgi_application()
 - [ ] `DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'`
 - [ ] `STATIC_URL = '/static/'`
 - [ ] `requirements.txt` Django 버전 pin
-- [ ] PA Django 6.x로 로컬과 맞추기
-- [ ] Admin 필터 레이아웃 (버전 맞춤 또는 `admin-fix.css`)
+- [x] PA Django 6.0.6 (런타임 확인됨, requirements pin은 미반영)
+- [x] Admin 필터 레이아웃 — 2026-06-22 해결 ([troubleshooting.md](troubleshooting.md))
 - [ ] README에 PA 배포 체크리스트 보강
 - [ ] `db.sqlite3` 백업 루틴 문서화
 
@@ -297,7 +304,7 @@ python-dotenv>=1.0.0
 5. `.env` 생성 + `SECRET_KEY`
 6. `python manage.py check`
 7. `db.sqlite3` 업로드
-8. `collectstatic`
+8. `collectstatic --clear --noinput` (Django 업그레이드 시 필수)
 9. Web: virtualenv, source, working dir, static, WSGI
 10. Reload
 11. `changepassword`
@@ -318,7 +325,8 @@ python-dotenv>=1.0.0
 |------|------|
 | 완료 | 로컬 운영 구조, GitHub push, PA 배포, Admin 로그인 |
 | 완료 | `db.sqlite3` PA 유지, `collectstatic`, static 매핑 |
-| 보류 | Admin 필터 레이아웃, Django 버전 통일 |
+| 완료 | Admin 필터 레이아웃 (2026-06-22, `collectstatic --clear`) |
+| 보류 | `requirements.txt` Django 버전 pin, settings 정리 |
 
 **운영 워크플로:** Cursor → GitHub → PA `git pull` → (migrate/collectstatic) → Reload
 

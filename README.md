@@ -101,6 +101,17 @@ Cursor에서 수정
 
 ---
 
+## 문서
+
+| 문서 | 설명 |
+|------|------|
+| [배포 보고서](docs/deployment_report_2026_06_21.md) | 배포 타임라인과 운영 절차 |
+| [트러블슈팅 기록](docs/troubleshooting.md) | 운영 중 발생한 문제의 진단과 해결 기록 |
+
+> Django 업그레이드 후에는 `python manage.py collectstatic --clear --noinput` 사용 권장
+
+---
+
 ## 주요 URL
 
 | URL | 설명 |
