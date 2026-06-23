@@ -1,0 +1,13 @@
+{% for video in related_videos %}
+<article
+  class="card card--playable card--landscape epilogue-related-card"
+  data-youtube-id="{{ video.youtube_id }}"
+  data-video-type="{{ video.video_type }}"
+  role="button"
+  tabindex="0"
+  aria-label="{{ video.title }} 재생"
+>
+  {% include "skyview/includes/youtube_thumbnail.html" with youtube_id=video.youtube_id alt=video.title|add:" 썸네일" width=400 height=225 only %}
+  <h3>{{ video.title }}</h3>
+</article>
+{% endfor %}

@@ -107,6 +107,7 @@ Cursor에서 수정
 |------|------|
 | [배포 보고서](docs/deployment_report_2026_06_21.md) | 배포 타임라인과 운영 절차 |
 | [트러블슈팅 기록](docs/troubleshooting.md) | 운영 중 발생한 문제의 진단과 해결 기록 |
+| [Epilogue 시스템](docs/epilogue.md) | Hero 에필로그·popup·md/정적 HTML 구조 (2026-06) |
 
 > Django 업그레이드 후에는 `python manage.py collectstatic --clear --noinput` 사용 권장
 
@@ -120,6 +121,8 @@ Cursor에서 수정
 | `/videos/` | 16:9 Landscape 목록 |
 | `/shorts/` | 9:16 Shorts 목록 |
 | `/places/<slug>/` | 장소별 영상 |
+| `/places/<slug>/epilogue/` | Epilogue (직접 URL, Django) |
+| `/places/<slug>/epilogue/popup/` | Epilogue popup용 HTML (iframe) |
 | `/places/all/` | 전체 장소 + 지도 |
 | `/about/` | About |
 | `/admin/` | Django Admin |

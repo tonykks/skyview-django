@@ -60,7 +60,10 @@
       </div>
     </div>
 
+    {% include "skyview/includes/epilogue_modal.html" %}
+
     <script src="{% static 'skyview/js/lightbox.js' %}"></script>
+    <script src="{% static 'skyview/js/epilogue.js' %}"></script>
     {% block extra_js %}{% endblock %}
   </body>
 </html>

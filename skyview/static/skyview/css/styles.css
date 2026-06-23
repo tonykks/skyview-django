@@ -42,7 +42,7 @@ body {
 .main-nav {
   position: absolute;
   top: auto;
-  bottom: 10%;
+  bottom: 18%;
   right: 1.48%;
   left: auto;
   display: flex;
@@ -112,10 +112,6 @@ body {
 .hero {
   background-color: #000000;
   overflow: hidden;
-}
-
-.hero--playable {
-  cursor: pointer;
 }
 
 .hero-layout {
@@ -290,6 +286,19 @@ body {
   transition: background-color 0.15s ease, opacity 0.15s ease;
 }
 
+.hero-epilogue-btn {
+  display: none;
+}
+
+.hero-caption__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(8px, 1.5vw, 14px);
+  width: 100%;
+}
+
+.btn--hero-action,
 .btn--play {
   flex-shrink: 0;
   background-color: #ffffff;
@@ -301,15 +310,21 @@ body {
   white-space: nowrap;
 }
 
+.btn--hero-action:hover:not(:disabled),
 .btn--play:hover {
   background-color: rgba(255, 255, 255, 0.85);
+}
+
+.btn--hero-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 /* Desktop / large tablet landscape: video-centric 2-column */
 @media (min-width: 768px) {
   .hero-layout {
-    grid-template-columns: minmax(0, 36fr) minmax(0, 64fr);
-    gap: clamp(20px, 3vw, 48px);
+    grid-template-columns: minmax(0, 40fr) minmax(0, 60fr);
+    gap: clamp(18px, 2.6vw, 40px);
     padding: clamp(14px, 2.2vw, 32px) clamp(18px, 2.8vw, 36px);
   }
 
@@ -347,17 +362,32 @@ body {
   }
 
   .hero-caption--overlay {
+    justify-content: flex-end;
+    align-items: flex-end;
     padding: clamp(16px, 2.8vw, 28px) clamp(12px, 1.8vw, 18px) clamp(10px, 1.5vw, 14px);
   }
 
+  .hero-caption__actions {
+    width: 100%;
+  }
+
+  .hero-epilogue-btn {
+    display: inline-flex;
+  }
+
+  .hero-caption--overlay .btn--hero-action,
   .hero-caption--overlay .btn--play {
     font-size: clamp(0.75rem, 1.2vw, 1rem);
     padding: clamp(6px, 0.8vw, 10px) clamp(12px, 1.4vw, 20px);
   }
 }
 
-/* Wide desktop: title single line, sized to fit left column */
+/* Wide desktop: title single line, balanced 2-column */
 @media (min-width: 960px) {
+  .hero-layout {
+    grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
+  }
+
   .hero-copy__title {
     white-space: nowrap;
     font-size: clamp(1rem, 1.62vw, 1.125rem);
@@ -367,8 +397,8 @@ body {
 /* Narrow desktop / tablet landscape */
 @media (min-width: 768px) and (max-width: 900px) {
   .hero-layout {
-    grid-template-columns: minmax(0, 36fr) minmax(0, 64fr);
-    gap: clamp(16px, 2.5vw, 32px);
+    grid-template-columns: minmax(0, 40fr) minmax(0, 60fr);
+    gap: clamp(14px, 2.2vw, 28px);
     padding: clamp(12px, 2vw, 24px) clamp(14px, 2.5vw, 28px);
   }
 
@@ -403,12 +433,24 @@ body {
   }
 
   .hero-caption--overlay {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: clamp(6px, 2vw, 10px);
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-end;
+    gap: clamp(8px, 2vw, 10px);
     flex-wrap: nowrap;
     padding: clamp(10px, 2.8vw, 18px) clamp(10px, 2.5vw, 14px);
+  }
+
+  .hero-epilogue-btn {
+    display: inline-flex;
+  }
+
+  .hero-caption__actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: clamp(6px, 2vw, 10px);
+    width: 100%;
   }
 
   .hero-title--overlay,
@@ -428,6 +470,7 @@ body {
     text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9);
   }
 
+  .hero-caption--overlay .btn--hero-action,
   .hero-caption--overlay .btn--play {
     flex-shrink: 0;
     font-size: clamp(11px, 3vw, 16px);
@@ -445,6 +488,7 @@ body {
     letter-spacing: -0.03em;
   }
 
+  .hero-caption--overlay .btn--hero-action,
   .hero-caption--overlay .btn--play {
     font-size: clamp(10px, 2.6vw, 13px);
     padding: 6px 10px;
@@ -1440,4 +1484,123 @@ body {
   color: #b3b3b3;
   font-size: 1rem;
   letter-spacing: 0.03em;
+}
+
+/* Epilogue standalone page */
+.epilogue-page {
+  background-color: #000000;
+  color: #e5e5e5;
+}
+
+.epilogue-page__wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 32px) 64px;
+}
+
+.epilogue-page__header {
+  margin-bottom: clamp(24px, 4vw, 36px);
+  padding-bottom: clamp(16px, 3vw, 24px);
+  border-bottom: 2px solid #e50914;
+}
+
+.epilogue-page__place {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e50914;
+}
+
+.epilogue-page__title {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.55vw, 1.78rem);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: -0.025em;
+  color: #ffffff;
+  word-break: keep-all;
+  white-space: nowrap;
+}
+
+.epilogue-page__body {
+  font-size: clamp(0.95rem, 1.6vw, 1.05rem);
+  line-height: 1.75;
+  color: #d0d0d0;
+  word-break: keep-all;
+}
+
+.epilogue-page__body h2 {
+  margin: 1.75em 0 0.7em;
+  font-size: clamp(1.02rem, 1.85vw, 1.14rem);
+  font-weight: 700;
+  line-height: 1.4;
+  color: #ffffff;
+}
+
+.epilogue-page__body h2:first-child {
+  margin-top: 0;
+}
+
+.epilogue-page__body a {
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(229, 9, 20, 0.85);
+  text-underline-offset: 3px;
+}
+
+.epilogue-page__body a:hover {
+  color: #e50914;
+}
+
+.epilogue-page__related {
+  margin-top: 1.35em;
+}
+
+.epilogue-page__related .epilogue-related-card {
+  width: min(100%, 280px);
+  margin-top: 0.25em;
+}
+
+.epilogue-page__related .epilogue-related-card h3 {
+  padding-bottom: 10px;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.epilogue-page__body p {
+  margin: 0 0 1.1em;
+}
+
+.epilogue-page__body p:last-child {
+  margin-bottom: 0;
+}
+
+.epilogue-page__footer {
+  margin-top: clamp(32px, 5vw, 48px);
+  padding-top: 20px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.18);
+}
+
+.epilogue-page__back {
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.epilogue-page__back:hover {
+  color: #e50914;
+}
+
+@media (max-width: 480px) {
+  .epilogue-page__title {
+    white-space: normal;
+    font-size: 1.22rem;
+  }
 }

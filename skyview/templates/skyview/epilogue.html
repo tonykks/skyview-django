@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ epilogue.title }} | {{ place.name }} Epilogue</title>
+    <link rel="stylesheet" href="{% static 'skyview/css/styles.css' %}" />
+  </head>
+  <body class="epilogue-page">
+    <div class="epilogue-page__wrap">
+      <header class="epilogue-page__header">
+        <p class="epilogue-page__place">{{ place.name }}</p>
+        <h1 class="epilogue-page__title">{{ epilogue.title }}</h1>
+      </header>
+      <article class="epilogue-page__body">
+        {{ epilogue.body_html|safe }}
+        {% if related_videos %}
+        <div class="epilogue-page__related">
+          {% include "skyview/includes/epilogue_related_videos.html" with related_videos=related_videos only %}
+        </div>
+        {% endif %}
+      </article>
+    </div>
+
+    <div id="lightbox" class="lightbox" aria-hidden="true">
+      <div class="lightbox-inner">
+        <button type="button" class="lightbox-close" id="lb-close" aria-label="닫기">
+          Close ✕
+        </button>
+        <div id="lightbox-player" class="lightbox-player"></div>
+      </div>
+    </div>
+
+    <script src="{% static 'skyview/js/lightbox.js' %}"></script>
+  </body>
+</html>

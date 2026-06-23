@@ -1,8 +1,17 @@
 import json
 
 from django.core.serializers.json import DjangoJSONEncoder
+from django.http import FileResponse, Http404
 from django.shortcuts import redirect, render
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
+from .epilogue import (
+    epilogue_place_for_hero,
+    epilogue_popup_absolute_url_for_place,
+    epilogue_static_html_path,
+    load_epilogue,
+    related_videos_for_place,
+)
 from .models import FamilySite, Place, Video
 from .utils import (
     chunk_place_videos,
@@ -77,15 +86,20 @@ def home(request):
             display_rank=0,
         )
         .exclude(youtube_id="")
+        .select_related("place")
         .first()
     )
     featured_place = default_place()
+    hero_epilogue_place = epilogue_place_for_hero(hero_video, featured_place)
+    hero_epilogue_url = epilogue_popup_absolute_url_for_place(request, hero_epilogue_place)
 
     return render(
         request,
         "skyview/index.html",
         {
             "hero_video": hero_video,
+            "hero_epilogue_place": hero_epilogue_place,
+            "hero_epilogue_url": hero_epilogue_url,
             "featured_place": featured_place,
             "featured_place_videos": _place_landscape_videos(featured_place),
             "place_nav_places": priority_places(),
@@ -170,6 +184,33 @@ def place_detail(request, slug):
             "family_sites": _family_sites(),
         },
     )
+
+
+def place_epilogue(request, slug):
+    place = get_place_by_slug(slug)
+    epilogue = load_epilogue(place)
+    if not epilogue:
+        raise Http404("Epilogue not found")
+
+    return render(
+        request,
+        "skyview/epilogue.html",
+        {
+            "place": place,
+            "epilogue": epilogue,
+            "related_videos": related_videos_for_place(place),
+        },
+    )
+
+
+@xframe_options_sameorigin
+def place_epilogue_popup(request, slug):
+    place = get_place_by_slug(slug)
+    static_path = epilogue_static_html_path(place)
+    if not static_path:
+        raise Http404("Epilogue popup not found")
+
+    return FileResponse(static_path.open("rb"), content_type="text/html; charset=utf-8")
 
 
 def place_all(request):

@@ -57,20 +57,11 @@ function playFromElement(element) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  document
-    .querySelectorAll(".hero--playable[data-youtube-id]")
-    .forEach(function (hero) {
-      hero.addEventListener("click", function () {
-        playFromElement(hero);
-      });
-
-      hero.addEventListener("keydown", function (event) {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          playFromElement(hero);
-        }
-      });
+  document.querySelectorAll(".hero-play-btn[data-youtube-id]").forEach(function (playBtn) {
+    playBtn.addEventListener("click", function () {
+      playFromElement(playBtn);
     });
+  });
 
   document.querySelectorAll(".card[data-youtube-id]").forEach(function (card) {
     card.addEventListener("click", function (event) {

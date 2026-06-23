@@ -4,25 +4,24 @@
 <main>
   {% if hero_video %}
   {% with hero_display_title="섶섬 - 고난과 인내가 만든 아름다움" %}
-  <section
-    class="hero hero--playable"
-    aria-label="대표 영상"
-    data-youtube-id="{{ hero_video.youtube_id }}"
-    data-video-type="L"
-    role="button"
-    tabindex="0"
-  >
+  <section class="hero" aria-label="대표 영상">
     <div class="hero-layout">
       <div class="hero-copy">
         <h1 class="hero-copy__title">{{ hero_display_title }}</h1>
         <div class="hero-copy__prose">
           <ul class="hero-copy__list">
-            <li class="hero-copy__item hero-copy__item--lead">
-              제주 서귀포 앞바다, 파도와 바람을 온몸으로 맞으며 묵묵히 견뎌온 <strong>섶섬</strong>
+            <li class="hero-copy__item">
+              <strong>제주 서귀포 앞바다</strong> — 파도와 바람을 견딘 섶섬
             </li>
-            <li class="hero-copy__item">시간과 인내, 침묵의 힘이 빚은 섶섬의 풍경</li>
-            <li class="hero-copy__item">거친 포말에 깎인 바위들, 그 위에 새겨진 세월의 흔적</li>
-            <li class="hero-copy__item hero-copy__item--closing">이 아름다움은 하루 아침에 만들어지지 않았다!</li>
+            <li class="hero-copy__item">
+              <strong>시간과 인내</strong> — 침묵이 빚은 풍경
+            </li>
+            <li class="hero-copy__item">
+              <strong>거친 포말</strong> — 바위에 새겨진 세월
+            </li>
+            <li class="hero-copy__item">
+              <strong>아름다움</strong> — 하루아침에 만들어지지 않은 결과
+            </li>
           </ul>
         </div>
       </div>
@@ -32,7 +31,33 @@
         <span class="hero-badge">대표 영상</span>
         <div class="hero-caption hero-caption--overlay">
           <h1 class="hero-title hero-title--overlay mobile-hero-info">{{ hero_display_title }}</h1>
-          <span class="btn btn--play">▶ 재생</span>
+          <div class="hero-caption__actions">
+          <button
+            type="button"
+            class="btn btn--hero-action hero-play-btn"
+            data-youtube-id="{{ hero_video.youtube_id }}"
+            data-video-type="L"
+            aria-label="{{ hero_display_title }} 재생"
+          >
+            ▶ 재생
+          </button>
+          <button
+            type="button"
+            id="hero-epilogue-btn"
+            class="btn btn--hero-action hero-epilogue-btn"
+            {% if hero_epilogue_url %}
+            data-epilogue-url="{{ hero_epilogue_url }}"
+            data-epilogue-title="{{ hero_epilogue_place.name }} 에필로그"
+            aria-label="{{ hero_epilogue_place.name }} 에필로그"
+            {% else %}
+            disabled
+            aria-disabled="true"
+            aria-label="에필로그 (준비 중)"
+            {% endif %}
+          >
+            ▶ 에필로그
+          </button>
+          </div>
         </div>
       </div>
     </div>
