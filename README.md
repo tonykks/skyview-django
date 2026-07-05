@@ -101,6 +101,16 @@ Cursor에서 수정
 
 ---
 
+## 향후 UI 개편 (검토 중)
+
+React Netflix 강의와 Skyview를 비교·검토한 내용을 문서로 남겨 두었습니다. **당장 반영하지 않으며**, 이후 UI를 다듬을 때 참고용입니다.
+
+- **우선 검토 후보:** 검색, Swiper Row, 카드 hover·transition, Hero fade 등 (대부분 Django + CSS/JS로 가능)
+- **보류·주의:** 홈 추천 Row(`display_rank` 기준 정리 후), 운영 배포 전 로컬·브랜치에서 충분히 검증
+- **상세 문서:** [Netflix 강의 UI 검토](docs/ui_review_netflix_course.md)
+
+---
+
 ## 문서
 
 | 문서 | 설명 |
@@ -108,6 +118,7 @@ Cursor에서 수정
 | [배포 보고서](docs/deployment_report_2026_06_21.md) | 배포 타임라인과 운영 절차 |
 | [트러블슈팅 기록](docs/troubleshooting.md) | 운영 중 발생한 문제의 진단과 해결 기록 |
 | [Epilogue 시스템](docs/epilogue.md) | Hero 에필로그·popup·md/정적 HTML 구조 (2026-06) |
+| [Netflix 강의 UI 검토](docs/ui_review_netflix_course.md) | React 강의 vs Skyview UI 비교·반영 우선순위 (2026-07) |
 
 > Django 업그레이드 후에는 `python manage.py collectstatic --clear --noinput` 사용 권장
 
