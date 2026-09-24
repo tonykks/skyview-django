@@ -6,7 +6,7 @@
 {% block extra_css %}
 <style>
   .portal-container {
-    max-width: 1400px;
+    max-width: 1440px;
     margin: 20px auto;
     padding: 0 20px;
   }
@@ -48,12 +48,12 @@
     gap: 12px;
     flex-wrap: wrap;
   }
-  .period-picker-group, .date-picker-group, .custom-range-group {
+  .period-picker-group, .custom-range-group {
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  .period-picker-group label, .date-picker-group label {
+  .period-picker-group label {
     font-size: 13px;
     color: #a1a5b7;
     white-space: nowrap;
@@ -92,17 +92,156 @@
     padding: 6px 10px;
     font-size: 12px;
   }
+  .portal-main-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  @media (max-width: 991px) {
+    .portal-main-layout {
+      flex-direction: column;
+    }
+  }
+  .date-list-panel {
+    width: 280px;
+    flex-shrink: 0;
+    background: #1e1e2d;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    max-height: 820px;
+    display: flex;
+    flex-direction: column;
+  }
+  @media (max-width: 991px) {
+    .date-list-panel {
+      width: 100%;
+      max-height: 240px;
+    }
+  }
+  .date-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #2b2b40;
+    margin-bottom: 12px;
+  }
+  .date-list-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+  .date-count-badge {
+    background: #2b2b40;
+    color: #a1a5b7;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .date-list-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  @media (max-width: 991px) {
+    .date-list-items {
+      flex-direction: row;
+      flex-wrap: wrap;
+      overflow-x: auto;
+    }
+  }
+  .date-item-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    background: #2b2b40;
+    color: #a1a5b7;
+    border: 1px solid #363654;
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+  }
+  .date-item-btn:hover {
+    background: #363654;
+    color: #ffffff;
+    border-color: #6366f1;
+  }
+  .date-item-btn.active {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: #6366f1;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 0 0 1px #6366f1;
+  }
+  .date-item-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .date-item-text {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .date-item-tag.latest {
+    background: #10b981;
+    color: #ffffff;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .date-item-sub {
+    font-size: 11px;
+    color: #7e8299;
+  }
+  .date-item-btn.active .date-item-sub {
+    color: #818cf8;
+  }
+  .viewer-container {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .viewer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1e1e2d;
+    padding: 12px 20px;
+    border-radius: 10px;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .viewing-date-label {
+    font-size: 14px;
+    color: #a1a5b7;
+  }
+  .viewing-date-label strong {
+    color: #ffffff;
+  }
   .iframe-wrapper {
     background: #ffffff;
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.1);
     overflow: hidden;
     position: relative;
-    min-height: 800px;
+    min-height: 760px;
   }
   .report-frame {
     width: 100%;
-    height: 820px;
+    height: 760px;
     border: none;
     display: block;
   }
@@ -146,20 +285,6 @@
         <button type="button" onclick="applyCustomRange()" class="btn-action btn-sm">조회</button>
       </div>
 
-      {% if dates %}
-      <div class="date-picker-group">
-        <label for="date-select">보고서 선택:</label>
-        <select id="date-select" class="date-select" onchange="loadReport(this.value)">
-          {% for date in dates %}
-          <option value="{{ date }}" {% if date == selected_date %}selected{% endif %}>{{ date }} 보고서</option>
-          {% endfor %}
-        </select>
-      </div>
-      {% endif %}
-
-      {% if selected_date %}
-      <a id="btn-open-newtab" href="{% url 'private_reports_api_view' date_str=selected_date %}" class="btn-action" target="_blank" rel="noopener">새 탭에서 열기 ↗</a>
-      {% endif %}
       <a href="/admin/" class="btn-action" target="_blank" rel="noopener">Admin ⚙️</a>
       <form method="post" action="{% url 'admin:logout' %}?next=/" style="display: inline;">
         {% csrf_token %}
@@ -168,31 +293,74 @@
     </div>
   </div>
 
-  <div class="iframe-wrapper">
-    {% if api_error %}
-    <div class="empty-state error-state">
-      <h3 style="color: #f87171;">⚠️ GitHub API 연동 오류가 발생했습니다.</h3>
-      <p style="font-size: 15px; font-weight: 600;">{{ api_error }}</p>
-      <p style="margin-top: 10px; font-size: 13px; color: #a1a5b7;">PythonAnywhere `.env` 파일에 `EMAIL_AGENT_GITHUB_TOKEN` (Private repo 읽기 권한 Fine-grained PAT)이 설정되어 있는지 확인해 주세요.</p>
-    </div>
-    {% elif has_no_reports_in_period %}
-    <div class="empty-state">
-      <h3>선택한 기간({{ start_date }} ~ {{ end_date }})에 보관된 보고서가 없습니다.</h3>
-      <p style="margin-top: 8px; font-size: 14px; color: #6b7280;">상단의 조회 기간 필터를 '전체 보관 목록' 또는 다른 기간으로 변경하여 검색해 보세요.</p>
-    </div>
-    {% elif selected_date %}
-    <iframe id="report-frame"
-            src="{% url 'private_reports_api_view' date_str=selected_date %}"
-            sandbox="allow-popups allow-popups-to-escape-sandbox allow-forms"
-            class="report-frame"
-            title="Email Agent Report Viewer">
-    </iframe>
-    {% else %}
-    <div class="empty-state">
-      <h3>보관된 보고서가 없습니다.</h3>
-      <p style="margin-top: 8px; font-size: 14px; color: #6b7280;">새로운 보고서가 생성되면 이곳에 자동으로 표시됩니다.</p>
+  <div class="portal-main-layout">
+    {% if dates %}
+    <div class="date-list-panel">
+      <div class="date-list-header">
+        <span class="date-list-title">📅 보관 날짜 목록</span>
+        <span class="date-count-badge">{{ dates|length }}건</span>
+      </div>
+      <div class="date-list-items" role="list">
+        {% for d in dates %}
+        <button type="button"
+                class="date-item-btn {% if d == selected_date %}active{% endif %}"
+                onclick="selectDate('{{ d }}')"
+                id="date-btn-{{ d }}"
+                role="listitem"
+                aria-selected="{% if d == selected_date %}true{% else %}false{% endif %}">
+          <div class="date-item-main">
+            <span class="date-item-text">{{ d }}</span>
+            {% if forloop.first and active_period == 'all' %}
+            <span class="date-item-tag latest">최신</span>
+            {% endif %}
+          </div>
+          <span class="date-item-sub">보고서 원본 📄</span>
+        </button>
+        {% endfor %}
+      </div>
     </div>
     {% endif %}
+
+    <div class="viewer-container">
+      {% if api_error %}
+      <div class="iframe-wrapper">
+        <div class="empty-state error-state">
+          <h3 style="color: #f87171;">⚠️ GitHub API 연동 오류가 발생했습니다.</h3>
+          <p style="font-size: 15px; font-weight: 600;">{{ api_error }}</p>
+          <p style="margin-top: 10px; font-size: 13px; color: #a1a5b7;">PythonAnywhere `.env` 파일에 `EMAIL_AGENT_GITHUB_TOKEN` (Private repo 읽기 권한 Fine-grained PAT)이 설정되어 있는지 확인해 주세요.</p>
+        </div>
+      </div>
+      {% elif has_no_reports_in_period %}
+      <div class="iframe-wrapper">
+        <div class="empty-state">
+          <h3>선택한 기간({{ start_date }} ~ {{ end_date }})에 보관된 보고서가 없습니다.</h3>
+          <p style="margin-top: 8px; font-size: 14px; color: #6b7280;">상단의 조회 기간 필터를 '전체 보관 목록' 또는 다른 기간으로 변경하여 검색해 보세요.</p>
+        </div>
+      </div>
+      {% elif selected_date %}
+      <div class="viewer-header">
+        <div class="viewing-date-label">
+          현재 조회 중: <strong id="selected-date-display">{{ selected_date }} 보고서</strong>
+        </div>
+        <a id="btn-open-newtab" href="{% url 'private_reports_api_view' date_str=selected_date %}" class="btn-action" target="_blank" rel="noopener">새 탭에서 열기 ↗</a>
+      </div>
+      <div class="iframe-wrapper">
+        <iframe id="report-frame"
+                src="{% url 'private_reports_api_view' date_str=selected_date %}"
+                sandbox="allow-popups allow-popups-to-escape-sandbox allow-forms"
+                class="report-frame"
+                title="Email Agent Report Viewer">
+        </iframe>
+      </div>
+      {% else %}
+      <div class="iframe-wrapper">
+        <div class="empty-state">
+          <h3>보관된 보고서가 없습니다.</h3>
+          <p style="margin-top: 8px; font-size: 14px; color: #6b7280;">새로운 보고서가 생성되면 이곳에 자동으로 표시됩니다.</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
   </div>
 </div>
 {% endblock %}
@@ -219,8 +387,26 @@ function applyCustomRange() {
   window.location.href = '/private-reports/?period=custom&start_date=' + encodeURIComponent(startVal) + '&end_date=' + encodeURIComponent(endVal);
 }
 
-function loadReport(dateStr) {
+function selectDate(dateStr) {
   if (!dateStr) return;
+
+  var buttons = document.querySelectorAll('.date-item-btn');
+  buttons.forEach(function(btn) {
+    btn.classList.remove('active');
+    btn.setAttribute('aria-selected', 'false');
+  });
+
+  var activeBtn = document.getElementById('date-btn-' + dateStr);
+  if (activeBtn) {
+    activeBtn.classList.add('active');
+    activeBtn.setAttribute('aria-selected', 'true');
+  }
+
+  var displayEl = document.getElementById('selected-date-display');
+  if (displayEl) {
+    displayEl.textContent = dateStr + ' 보고서';
+  }
+
   var url = '/private-reports/api/view/' + encodeURIComponent(dateStr) + '/';
   var frame = document.getElementById('report-frame');
   if (frame) {

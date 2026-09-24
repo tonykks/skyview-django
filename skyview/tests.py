@@ -86,6 +86,9 @@ class TestPrivateReportsPortalViews(TestCase):
         self.assertIn('method="post"', content_str)
         self.assertIn('action="/admin/logout/?next=/"', content_str)
         self.assertIn('csrfmiddlewaretoken', content_str)
+        self.assertIn("date-list-panel", content_str)
+        self.assertIn("date-item-btn", content_str)
+        self.assertIn("selectDate", content_str)
 
     @patch("skyview.views._fetch_github_archive_info")
     def test_portal_logout_clears_session(self, mock_info):
