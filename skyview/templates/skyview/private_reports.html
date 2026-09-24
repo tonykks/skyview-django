@@ -136,7 +136,7 @@
     {% if selected_date %}
     <iframe id="report-frame"
             src="{% url 'private_reports_api_view' date_str=selected_date %}"
-            sandbox="allow-same-origin allow-scripts"
+            sandbox="allow-popups allow-popups-to-escape-sandbox allow-forms"
             class="report-frame"
             title="Email Agent Report Viewer">
     </iframe>

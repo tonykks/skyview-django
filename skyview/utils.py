@@ -175,12 +175,10 @@ def is_skyview_owner(user) -> bool:
     from django.conf import settings
     owner_usernames = getattr(settings, 'SKYVIEW_OWNER_USERNAMES', [])
     if not owner_usernames:
-        owner_usernames = ['admin', 'tony', 'owner', 'smile21c']
-    allowed = {str(name).strip().lower() for name in owner_usernames}
+        return False
+    allowed = {str(name).strip().lower() for name in owner_usernames if str(name).strip()}
+    if not allowed:
+        return False
     username = str(getattr(user, 'username', '')).strip().lower()
     email = str(getattr(user, 'email', '')).strip().lower()
-    if username in allowed or email in allowed:
-        return True
-    if getattr(settings, 'SKYVIEW_OWNER_SUPERUSER_ALLOWED', True) and getattr(user, 'is_superuser', False):
-        return True
-    return False
+    return (username in allowed) or (bool(email) and email in allowed)

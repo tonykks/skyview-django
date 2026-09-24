@@ -1,6 +1,6 @@
-from unittest.mock import MagicMock, patch
+﻿from unittest.mock import MagicMock, patch
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from .utils import is_skyview_owner
@@ -14,13 +14,22 @@ class TestOwnerAuthUtils(TestCase):
         self.normal_user = User.objects.create_user(username="johndoe", password="password123")
         self.superuser = User.objects.create_superuser(username="superadmin", password="password123")
 
-    def test_is_skyview_owner_evaluations(self):
+    @override_settings(SKYVIEW_OWNER_USERNAMES=[])
+    def test_missing_configuration_denies_all_including_superuser(self):
+        self.assertFalse(is_skyview_owner(None))
+        self.assertFalse(is_skyview_owner(self.normal_user))
+        self.assertFalse(is_skyview_owner(self.owner_user))
+        self.assertFalse(is_skyview_owner(self.superuser))
+
+    @override_settings(SKYVIEW_OWNER_USERNAMES=["owner"])
+    def test_configured_owner_controls_access_strictly(self):
         self.assertFalse(is_skyview_owner(None))
         self.assertFalse(is_skyview_owner(self.normal_user))
         self.assertTrue(is_skyview_owner(self.owner_user))
-        self.assertTrue(is_skyview_owner(self.superuser))
+        self.assertFalse(is_skyview_owner(self.superuser))
 
 
+@override_settings(SKYVIEW_OWNER_USERNAMES=["owner"])
 class TestPrivateReportsPortalViews(TestCase):
     def setUp(self):
         self.client = Client()
@@ -50,14 +59,18 @@ class TestPrivateReportsPortalViews(TestCase):
         self.assertEqual(res3.status_code, 403)
 
     @patch("skyview.views._fetch_github_archive_list")
-    def test_owner_access_portal_main(self, mock_list):
+    def test_owner_access_portal_main_and_sandbox_security(self, mock_list):
         mock_list.return_value = ["2026-09-17"]
         self.client.login(username="owner", password="password123")
 
         res = self.client.get(reverse("private_reports"))
         self.assertEqual(res.status_code, 200)
         self.assertContains(res, "2026-09-17")
-        self.assertContains(res, "Email Agent 일일 브리핑 Portal")
+        content_str = res.content.decode("utf-8")
+        self.assertIn("sandbox=", content_str)
+        self.assertNotIn("allow-same-origin", content_str)
+        self.assertNotIn("allow-scripts", content_str)
+        self.assertIn("allow-popups", content_str)
 
     @patch("skyview.views._fetch_github_archive_list")
     def test_owner_access_api_list(self, mock_list):

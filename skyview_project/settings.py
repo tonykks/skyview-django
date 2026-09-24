@@ -147,3 +147,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 EPILOGUE_CONTENT_DIR = BASE_DIR / "content" / "epilogues"
 
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+
+SKYVIEW_OWNER_USERNAMES = _env_list("SKYVIEW_OWNER_USERNAMES")
