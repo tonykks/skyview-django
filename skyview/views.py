@@ -350,6 +350,7 @@ def private_reports_api_list(request):
     return JsonResponse({"ok": True, "dates": dates})
 
 
+@xframe_options_sameorigin
 def private_reports_api_view(request, date_str):
     if not is_skyview_owner(request.user):
         return HttpResponseForbidden("접근 권한이 없습니다. (Owner Only)")

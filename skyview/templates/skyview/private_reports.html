@@ -127,6 +127,9 @@
         </select>
       </div>
       {% endif %}
+      {% if selected_date %}
+      <a id="btn-open-newtab" href="{% url 'private_reports_api_view' date_str=selected_date %}" class="btn-action" target="_blank" rel="noopener">새 탭에서 열기 ↗</a>
+      {% endif %}
       <a href="/admin/" class="btn-action" target="_blank" rel="noopener">Admin ⚙️</a>
       <a href="/admin/logout/?next=/" class="btn-action">로그아웃 🔒</a>
     </div>
@@ -160,9 +163,14 @@
 <script>
 function loadReport(dateStr) {
   if (!dateStr) return;
+  var url = '/private-reports/api/view/' + encodeURIComponent(dateStr) + '/';
   var frame = document.getElementById('report-frame');
   if (frame) {
-    frame.src = '/private-reports/api/view/' + encodeURIComponent(dateStr) + '/';
+    frame.src = url;
+  }
+  var btnNewTab = document.getElementById('btn-open-newtab');
+  if (btnNewTab) {
+    btnNewTab.href = url;
   }
 }
 </script>

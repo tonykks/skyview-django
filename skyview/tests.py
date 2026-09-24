@@ -76,6 +76,7 @@ class TestPrivateReportsPortalViews(TestCase):
         res = self.client.get(reverse("private_reports"))
         self.assertEqual(res.status_code, 200)
         self.assertContains(res, "2026-09-17")
+        self.assertContains(res, "새 탭에서 열기 ↗")
         content_str = res.content.decode("utf-8")
         self.assertIn("sandbox=", content_str)
         self.assertNotIn("allow-same-origin", content_str)
@@ -116,6 +117,7 @@ class TestPrivateReportsPortalViews(TestCase):
         self.assertIn("Cache-Control", res.headers)
         self.assertIn("no-store", res.headers["Cache-Control"])
         self.assertEqual(res.headers.get("X-Content-Type-Options"), "nosniff")
+        self.assertEqual(res.headers.get("X-Frame-Options"), "SAMEORIGIN")
         self.assertIn("Test Report", res.content.decode("utf-8"))
 
     @patch("urllib.request.urlopen")
