@@ -133,7 +133,13 @@
   </div>
 
   <div class="iframe-wrapper">
-    {% if selected_date %}
+    {% if api_error %}
+    <div class="empty-state error-state">
+      <h3 style="color: #f87171;">⚠️ GitHub API 연동 오류가 발생했습니다.</h3>
+      <p style="font-size: 15px; font-weight: 600;">{{ api_error }}</p>
+      <p style="margin-top: 10px; font-size: 13px; color: #a1a5b7;">PythonAnywhere `.env` 파일에 `EMAIL_AGENT_GITHUB_TOKEN` (Private repo 읽기 권한 Fine-grained PAT)이 설정되어 있는지 확인해 주세요.</p>
+    </div>
+    {% elif selected_date %}
     <iframe id="report-frame"
             src="{% url 'private_reports_api_view' date_str=selected_date %}"
             sandbox="allow-popups allow-popups-to-escape-sandbox allow-forms"

@@ -1,9 +1,12 @@
-﻿from unittest.mock import MagicMock, patch
+﻿import os
+import urllib.error
+from unittest.mock import MagicMock, patch
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from .utils import is_skyview_owner
+from .views import _fetch_github_archive_info
 
 User = get_user_model()
 
@@ -65,9 +68,9 @@ class TestPrivateReportsPortalViews(TestCase):
         res3 = self.client.get(reverse("private_reports_api_view", kwargs={"date_str": "2026-09-17"}))
         self.assertEqual(res3.status_code, 403)
 
-    @patch("skyview.views._fetch_github_archive_list")
-    def test_owner_access_portal_main_and_sandbox_security(self, mock_list):
-        mock_list.return_value = ["2026-09-17"]
+    @patch("skyview.views._fetch_github_archive_info")
+    def test_owner_access_portal_main_and_sandbox_security(self, mock_info):
+        mock_info.return_value = (["2026-09-17"], None)
         self.client.login(username="owner", password="password123")
 
         res = self.client.get(reverse("private_reports"))
@@ -79,9 +82,9 @@ class TestPrivateReportsPortalViews(TestCase):
         self.assertNotIn("allow-scripts", content_str)
         self.assertIn("allow-popups", content_str)
 
-    @patch("skyview.views._fetch_github_archive_list")
-    def test_owner_access_api_list(self, mock_list):
-        mock_list.return_value = ["2026-09-17"]
+    @patch("skyview.views._fetch_github_archive_info")
+    def test_owner_access_api_list(self, mock_info):
+        mock_info.return_value = (["2026-09-17"], None)
         self.client.login(username="owner", password="password123")
 
         res = self.client.get(reverse("private_reports_api_list"))
@@ -124,3 +127,20 @@ class TestPrivateReportsPortalViews(TestCase):
 
         self.assertEqual(res.status_code, 502)
         self.assertNotIn("token", res.content.decode("utf-8").lower())
+
+    def test_fetch_github_archive_info_distinguishes_missing_token(self):
+        with patch.dict(os.environ, {}, clear=True):
+            dates, err = _fetch_github_archive_info()
+            self.assertEqual(dates, [])
+            self.assertIsNotNone(err)
+            self.assertIn("EMAIL_AGENT_GITHUB_TOKEN", err)
+
+    @patch("urllib.request.urlopen")
+    def test_fetch_github_archive_info_distinguishes_http_error(self, mock_urlopen):
+        err_404 = urllib.error.HTTPError("url", 404, "Not Found", None, None)
+        mock_urlopen.side_effect = err_404
+        with patch.dict(os.environ, {"EMAIL_AGENT_GITHUB_TOKEN": "fake_token"}, clear=True):
+            dates, err = _fetch_github_archive_info()
+            self.assertEqual(dates, [])
+            self.assertIsNotNone(err)
+            self.assertIn("인증/권한 오류", err)

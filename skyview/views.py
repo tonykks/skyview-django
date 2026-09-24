@@ -285,12 +285,14 @@ def _get_github_read_token() -> str:
     ).strip()
 
 
-def _fetch_github_archive_list() -> list[str]:
+def _fetch_github_archive_info() -> tuple[list[str], str | None]:
     token = _get_github_read_token()
+    if not token:
+        return [], "EMAIL_AGENT_GITHUB_TOKEN 토큰이 설정되지 않았습니다."
+
     url = "https://api.github.com/repos/tonykks/email-agent/contents/reports/archive"
     req = urllib.request.Request(url)
-    if token:
-        req.add_header("Authorization", f"Bearer {token}")
+    req.add_header("Authorization", f"Bearer {token}")
     req.add_header("User-Agent", "Skyview-Django-Portal")
     req.add_header("Accept", "application/vnd.github.v3+json")
 
@@ -299,22 +301,32 @@ def _fetch_github_archive_list() -> list[str]:
             data = json.loads(resp.read().decode("utf-8"))
             if isinstance(data, list):
                 dates: list[str] = []
+                pattern = re.compile(r"^(\d{4}-\d{2}-\d{2})\.html$")
                 for item in data:
                     name = item.get("name", "")
-                    match = re.match(r"^(\d{4}-\d{2}-\d{2})\.html$", name)
+                    match = pattern.match(name)
                     if match:
                         dates.append(match.group(1))
-                return sorted(dates, reverse=True)
+                return sorted(dates, reverse=True), None
+            return [], "GitHub API 응답 형식이 올바르지 않습니다."
+    except urllib.error.HTTPError as exc:
+        if exc.code in (401, 403, 404):
+            return [], "GitHub API 인증/권한 오류 (Token 설정 및 리포지토리 읽기 권한 확인 필요)"
+        return [], f"GitHub API HTTP 오류 ({exc.code})"
     except Exception:
-        pass
-    return []
+        return [], "GitHub API 통신 연결 오류가 발생했습니다."
+
+
+def _fetch_github_archive_list() -> list[str]:
+    dates, _ = _fetch_github_archive_info()
+    return dates
 
 
 def private_reports(request):
     if not is_skyview_owner(request.user):
         return HttpResponseForbidden("접근 권한이 없습니다. (Owner Only)")
 
-    dates = _fetch_github_archive_list()
+    dates, api_error = _fetch_github_archive_info()
     selected_date = request.GET.get("date", "").strip()
     if not selected_date or selected_date not in dates:
         selected_date = dates[0] if dates else ""
@@ -322,6 +334,7 @@ def private_reports(request):
     context = {
         "dates": dates,
         "selected_date": selected_date,
+        "api_error": api_error,
         "is_owner": True,
     }
     return render(request, "skyview/private_reports.html", context)
@@ -331,7 +344,9 @@ def private_reports_api_list(request):
     if not is_skyview_owner(request.user):
         return JsonResponse({"ok": False, "error": "Forbidden"}, status=403)
 
-    dates = _fetch_github_archive_list()
+    dates, api_error = _fetch_github_archive_info()
+    if api_error:
+        return JsonResponse({"ok": False, "error": api_error}, status=502)
     return JsonResponse({"ok": True, "dates": dates})
 
 
