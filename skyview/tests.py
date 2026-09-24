@@ -215,3 +215,17 @@ class TestPrivateReportsPortalViews(TestCase):
             self.assertEqual(dates, [])
             self.assertIsNotNone(err)
             self.assertIn("인증/권한 오류", err)
+
+    @patch('skyview.views._fetch_github_archive_info')
+    def test_portal_responsive_layout_css_rules(self, mock_info):
+        mock_info.return_value = (['2026-09-24', '2026-09-23'], None)
+        self.client.login(username='owner', password='password123')
+
+        res = self.client.get(reverse('private_reports'))
+        self.assertEqual(res.status_code, 200)
+        content_str = res.content.decode('utf-8')
+        
+        # Verify responsive CSS rules that guarantee iframe width > 760px on desktop/intermediate screens
+        self.assertIn('@media (max-width: 1120px)', content_str)
+        self.assertIn('min-width: 780px;', content_str)
+        self.assertIn('width: 250px;', content_str)

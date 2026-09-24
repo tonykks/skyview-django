@@ -97,13 +97,13 @@
     gap: 20px;
     align-items: flex-start;
   }
-  @media (max-width: 991px) {
+  @media (max-width: 1120px) {
     .portal-main-layout {
       flex-direction: column;
     }
   }
   .date-list-panel {
-    width: 280px;
+    width: 250px;
     flex-shrink: 0;
     background: #1e1e2d;
     border-radius: 12px;
@@ -113,7 +113,7 @@
     display: flex;
     flex-direction: column;
   }
-  @media (max-width: 991px) {
+  @media (max-width: 1120px) {
     .date-list-panel {
       width: 100%;
       max-height: 240px;
@@ -147,11 +147,16 @@
     overflow-y: auto;
     padding-right: 4px;
   }
-  @media (max-width: 991px) {
+  @media (max-width: 1120px) {
     .date-list-items {
       flex-direction: row;
       flex-wrap: wrap;
       overflow-x: auto;
+    }
+    .date-item-btn {
+      width: auto;
+      min-width: 140px;
+      flex: 0 0 auto;
     }
   }
   .date-item-btn {
@@ -209,10 +214,16 @@
   }
   .viewer-container {
     flex: 1;
-    min-width: 0;
+    min-width: 780px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+  @media (max-width: 1120px) {
+    .viewer-container {
+      min-width: 0;
+      width: 100%;
+    }
   }
   .viewer-header {
     display: flex;
