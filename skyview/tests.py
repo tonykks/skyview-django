@@ -28,6 +28,13 @@ class TestOwnerAuthUtils(TestCase):
         self.assertTrue(is_skyview_owner(self.owner_user))
         self.assertFalse(is_skyview_owner(self.superuser))
 
+    @override_settings(SKYVIEW_OWNER_USERNAMES=["TONY"])
+    def test_case_insensitive_owner_username_matching(self):
+        tony_upper = User.objects.create_user(username="TONY_U", password="password123")
+        tony_lower = User.objects.create_user(username="tony", password="password123")
+        tony_mixed = User.objects.create_user(username="Tony_M", password="password123")
+        self.assertTrue(is_skyview_owner(tony_lower))
+
 
 @override_settings(SKYVIEW_OWNER_USERNAMES=["owner"])
 class TestPrivateReportsPortalViews(TestCase):
