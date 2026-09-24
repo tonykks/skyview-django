@@ -264,6 +264,58 @@ import os
 import re
 import urllib.request
 import urllib.error
+from datetime import datetime, timedelta, timezone
+
+KST = timezone(timedelta(hours=9))
+
+
+def _filter_dates_by_period(
+    dates: list[str],
+    period: str,
+    start_date_str: str = "",
+    end_date_str: str = ""
+) -> tuple[list[str], str, str, str]:
+    today = datetime.now(KST).date()
+    period = period.strip().lower() if period else "all"
+
+    if period == "1day":
+        start_date = today
+        end_date = today
+    elif period == "30days":
+        start_date = today - timedelta(days=29)
+        end_date = today
+    elif period == "all":
+        start_date = None
+        end_date = None
+    elif period == "custom":
+        try:
+            start_date = datetime.strptime(start_date_str.strip(), "%Y-%m-%d").date()
+            end_date = datetime.strptime(end_date_str.strip(), "%Y-%m-%d").date()
+            if start_date > end_date:
+                start_date, end_date = end_date, start_date
+        except Exception:
+            period = "7days"
+            start_date = today - timedelta(days=6)
+            end_date = today
+    else:
+        period = "7days"
+        start_date = today - timedelta(days=6)
+        end_date = today
+
+    filtered: list[str] = []
+    for d_str in dates:
+        try:
+            d = datetime.strptime(d_str, "%Y-%m-%d").date()
+            if (start_date is None or start_date <= d) and (end_date is None or d <= end_date):
+                filtered.append(d_str)
+        except ValueError:
+            continue
+
+    filtered_sorted = sorted(filtered, reverse=True)
+    start_fmt = start_date.strftime("%Y-%m-%d") if start_date else (filtered_sorted[-1] if filtered_sorted else today.strftime("%Y-%m-%d"))
+    end_fmt = end_date.strftime("%Y-%m-%d") if end_date else (filtered_sorted[0] if filtered_sorted else today.strftime("%Y-%m-%d"))
+
+    return filtered_sorted, period, start_fmt, end_fmt
 from django.conf import settings
 from django.http import (
     HttpResponse,
@@ -326,16 +378,36 @@ def private_reports(request):
     if not is_skyview_owner(request.user):
         return HttpResponseForbidden("접근 권한이 없습니다. (Owner Only)")
 
-    dates, api_error = _fetch_github_archive_info()
-    selected_date = request.GET.get("date", "").strip()
-    if not selected_date or selected_date not in dates:
-        selected_date = dates[0] if dates else ""
+    all_dates, api_error = _fetch_github_archive_info()
+    
+    period = request.GET.get("period", "all").strip()
+    start_date_req = request.GET.get("start_date", "").strip()
+    end_date_req = request.GET.get("end_date", "").strip()
+    selected_date_req = request.GET.get("date", "").strip()
+
+    filtered_dates, active_period, start_date, end_date = _filter_dates_by_period(
+        all_dates, period, start_date_req, end_date_req
+    )
+
+    if selected_date_req and selected_date_req in filtered_dates:
+        selected_date = selected_date_req
+    elif filtered_dates:
+        selected_date = filtered_dates[0]
+    else:
+        selected_date = ""
+
+    has_no_reports_in_period = (not api_error) and bool(all_dates) and (not filtered_dates)
 
     context = {
-        "dates": dates,
+        "all_dates": all_dates,
+        "dates": filtered_dates,
         "selected_date": selected_date,
         "api_error": api_error,
         "is_owner": True,
+        "active_period": active_period,
+        "start_date": start_date,
+        "end_date": end_date,
+        "has_no_reports_in_period": has_no_reports_in_period,
     }
     return render(request, "skyview/private_reports.html", context)
 
@@ -344,10 +416,26 @@ def private_reports_api_list(request):
     if not is_skyview_owner(request.user):
         return JsonResponse({"ok": False, "error": "Forbidden"}, status=403)
 
-    dates, api_error = _fetch_github_archive_info()
+    all_dates, api_error = _fetch_github_archive_info()
     if api_error:
         return JsonResponse({"ok": False, "error": api_error}, status=502)
-    return JsonResponse({"ok": True, "dates": dates})
+
+    period = request.GET.get("period", "all").strip()
+    start_date_req = request.GET.get("start_date", "").strip()
+    end_date_req = request.GET.get("end_date", "").strip()
+
+    filtered_dates, active_period, start_date, end_date = _filter_dates_by_period(
+        all_dates, period, start_date_req, end_date_req
+    )
+
+    return JsonResponse({
+        "ok": True,
+        "dates": filtered_dates,
+        "all_dates": all_dates,
+        "period": active_period,
+        "start_date": start_date,
+        "end_date": end_date,
+    })
 
 
 @xframe_options_sameorigin

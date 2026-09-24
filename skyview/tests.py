@@ -111,6 +111,45 @@ class TestPrivateReportsPortalViews(TestCase):
         self.assertEqual(res3.status_code, 403)
 
     @patch("skyview.views._fetch_github_archive_info")
+    def test_period_filter_all_returns_all_dates(self, mock_info):
+        mock_info.return_value = (["2026-09-17", "2026-08-04", "2026-08-03"], None)
+        self.client.login(username="owner", password="password123")
+
+        res = self.client.get(reverse("private_reports") + "?period=all")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.context["dates"], ["2026-09-17", "2026-08-04", "2026-08-03"])
+
+    @patch("skyview.views._fetch_github_archive_info")
+    def test_period_filter_custom_range(self, mock_info):
+        mock_info.return_value = (["2026-09-17", "2026-08-04", "2026-08-03"], None)
+        self.client.login(username="owner", password="password123")
+
+        res = self.client.get(reverse("private_reports") + "?period=custom&start_date=2026-08-01&end_date=2026-08-10")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.context["dates"], ["2026-08-04", "2026-08-03"])
+
+    @patch("skyview.views._fetch_github_archive_info")
+    def test_empty_period_shows_no_reports_in_period_message(self, mock_info):
+        mock_info.return_value = (["2026-08-04"], None)
+        self.client.login(username="owner", password="password123")
+
+        res = self.client.get(reverse("private_reports") + "?period=1day")
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(res.context["has_no_reports_in_period"])
+        self.assertContains(res, "선택한 기간")
+
+    @patch("skyview.views._fetch_github_archive_info")
+    def test_api_list_supports_period_filtering(self, mock_info):
+        mock_info.return_value = (["2026-09-17", "2026-08-04", "2026-08-03"], None)
+        self.client.login(username="owner", password="password123")
+
+        res = self.client.get(reverse("private_reports_api_list") + "?period=custom&start_date=2026-08-01&end_date=2026-08-10")
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertTrue(data["ok"])
+        self.assertEqual(data["dates"], ["2026-08-04", "2026-08-03"])
+
+    @patch("skyview.views._fetch_github_archive_info")
     def test_owner_access_api_list(self, mock_info):
         mock_info.return_value = (["2026-09-17"], None)
         self.client.login(username="owner", password="password123")
