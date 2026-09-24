@@ -131,7 +131,10 @@
       <a id="btn-open-newtab" href="{% url 'private_reports_api_view' date_str=selected_date %}" class="btn-action" target="_blank" rel="noopener">새 탭에서 열기 ↗</a>
       {% endif %}
       <a href="/admin/" class="btn-action" target="_blank" rel="noopener">Admin ⚙️</a>
-      <a href="/admin/logout/?next=/" class="btn-action">로그아웃 🔒</a>
+      <form method="post" action="{% url 'admin:logout' %}?next=/" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn-action" style="cursor: pointer; font-family: inherit;">로그아웃 🔒</button>
+      </form>
     </div>
   </div>
 

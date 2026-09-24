@@ -43,7 +43,7 @@ class TestOwnerAuthUtils(TestCase):
 class TestPrivateReportsPortalViews(TestCase):
     def setUp(self):
         self.client = Client()
-        self.owner = User.objects.create_user(username="owner", password="password123")
+        self.owner = User.objects.create_user(username="owner", password="password123", is_staff=True)
         self.non_owner = User.objects.create_user(username="attacker", password="password123")
 
     def test_anonymous_user_access_is_forbidden(self):
@@ -82,6 +82,33 @@ class TestPrivateReportsPortalViews(TestCase):
         self.assertNotIn("allow-same-origin", content_str)
         self.assertNotIn("allow-scripts", content_str)
         self.assertIn("allow-popups", content_str)
+        self.assertNotIn('<a href="/admin/logout/?next=/"', content_str)
+        self.assertIn('method="post"', content_str)
+        self.assertIn('action="/admin/logout/?next=/"', content_str)
+        self.assertIn('csrfmiddlewaretoken', content_str)
+
+    @patch("skyview.views._fetch_github_archive_info")
+    def test_portal_logout_clears_session(self, mock_info):
+        mock_info.return_value = (["2026-09-17"], None)
+        self.client.login(username="owner", password="password123")
+
+        # Initial owner access works
+        res = self.client.get(reverse("private_reports"))
+        self.assertEqual(res.status_code, 200)
+
+        # POST to logout invalidates session
+        logout_res = self.client.post("/admin/logout/?next=/")
+        self.assertIn(logout_res.status_code, [200, 302])
+
+        # Subsequent requests are forbidden
+        res1 = self.client.get(reverse("private_reports"))
+        self.assertEqual(res1.status_code, 403)
+
+        res2 = self.client.get(reverse("private_reports_api_list"))
+        self.assertEqual(res2.status_code, 403)
+
+        res3 = self.client.get(reverse("private_reports_api_view", kwargs={"date_str": "2026-09-17"}))
+        self.assertEqual(res3.status_code, 403)
 
     @patch("skyview.views._fetch_github_archive_info")
     def test_owner_access_api_list(self, mock_info):
