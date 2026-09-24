@@ -167,3 +167,20 @@ def place_row_layout(row):
     if len(row) == 3:
         return "count-3"
     return f"count-{len(row)}"
+
+
+def is_skyview_owner(user) -> bool:
+    if not user or not getattr(user, 'is_authenticated', False) or not getattr(user, 'is_active', True):
+        return False
+    from django.conf import settings
+    owner_usernames = getattr(settings, 'SKYVIEW_OWNER_USERNAMES', [])
+    if not owner_usernames:
+        owner_usernames = ['admin', 'tony', 'owner', 'smile21c']
+    allowed = {str(name).strip().lower() for name in owner_usernames}
+    username = str(getattr(user, 'username', '')).strip().lower()
+    email = str(getattr(user, 'email', '')).strip().lower()
+    if username in allowed or email in allowed:
+        return True
+    if getattr(settings, 'SKYVIEW_OWNER_SUPERUSER_ALLOWED', True) and getattr(user, 'is_superuser', False):
+        return True
+    return False

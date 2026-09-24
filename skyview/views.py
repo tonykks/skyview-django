@@ -257,3 +257,109 @@ def about(request):
         "skyview/about.html",
         {"family_sites": _family_sites()},
     )
+
+
+import json
+import os
+import re
+import urllib.request
+import urllib.error
+from django.conf import settings
+from django.http import (
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseForbidden,
+    HttpResponseNotFound,
+    JsonResponse,
+)
+from .utils import is_skyview_owner
+
+
+def _get_github_read_token() -> str:
+    return (
+        os.environ.get("EMAIL_AGENT_GITHUB_TOKEN")
+        or os.environ.get("GITHUB_READ_TOKEN")
+        or os.environ.get("GH_TOKEN")
+        or os.environ.get("GITHUB_TOKEN")
+        or ""
+    ).strip()
+
+
+def _fetch_github_archive_list() -> list[str]:
+    token = _get_github_read_token()
+    url = "https://api.github.com/repos/tonykks/email-agent/contents/reports/archive"
+    req = urllib.request.Request(url)
+    if token:
+        req.add_header("Authorization", f"Bearer {token}")
+    req.add_header("User-Agent", "Skyview-Django-Portal")
+    req.add_header("Accept", "application/vnd.github.v3+json")
+
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            if isinstance(data, list):
+                dates: list[str] = []
+                for item in data:
+                    name = item.get("name", "")
+                    match = re.match(r"^(\d{4}-\d{2}-\d{2})\.html$", name)
+                    if match:
+                        dates.append(match.group(1))
+                return sorted(dates, reverse=True)
+    except Exception:
+        pass
+    return []
+
+
+def private_reports(request):
+    if not is_skyview_owner(request.user):
+        return HttpResponseForbidden("접근 권한이 없습니다. (Owner Only)")
+
+    dates = _fetch_github_archive_list()
+    selected_date = request.GET.get("date", "").strip()
+    if not selected_date or selected_date not in dates:
+        selected_date = dates[0] if dates else ""
+
+    context = {
+        "dates": dates,
+        "selected_date": selected_date,
+        "is_owner": True,
+    }
+    return render(request, "skyview/private_reports.html", context)
+
+
+def private_reports_api_list(request):
+    if not is_skyview_owner(request.user):
+        return JsonResponse({"ok": False, "error": "Forbidden"}, status=403)
+
+    dates = _fetch_github_archive_list()
+    return JsonResponse({"ok": True, "dates": dates})
+
+
+def private_reports_api_view(request, date_str):
+    if not is_skyview_owner(request.user):
+        return HttpResponseForbidden("접근 권한이 없습니다. (Owner Only)")
+
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$", date_str):
+        return HttpResponseBadRequest("올바르지 않은 날짜 형식입니다.")
+
+    token = _get_github_read_token()
+    url = f"https://api.github.com/repos/tonykks/email-agent/contents/reports/archive/{date_str}.html"
+    req = urllib.request.Request(url)
+    if token:
+        req.add_header("Authorization", f"Bearer {token}")
+    req.add_header("User-Agent", "Skyview-Django-Portal")
+    req.add_header("Accept", "application/vnd.github.raw+json")
+
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            html_bytes = resp.read()
+            response = HttpResponse(html_bytes, content_type="text/html; charset=utf-8")
+            response["Cache-Control"] = "no-store, private, no-cache, must-revalidate"
+            response["X-Content-Type-Options"] = "nosniff"
+            return response
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            return HttpResponseNotFound("해당 날짜의 보고서를 찾을 수 없습니다.")
+        return HttpResponse("GitHub API 통신 중 오류가 발생했습니다.", status=502)
+    except Exception:
+        return HttpResponse("보고서 조회가 실패했습니다.", status=502)
