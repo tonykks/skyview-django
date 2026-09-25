@@ -456,11 +456,34 @@ class TestTossReportsPortalViews(TestCase):
 
     def test_navigation_links_for_anonymous_and_owner(self):
         res = self.client.get(reverse("about"))
-        self.assertContains(res, 'href="/admin/login/?next=/toss-reports/"')
-        self.assertContains(res, 'data-tooltip="Login (Email)"')
+        # Top navigation has M button only, no separate T button
+        self.assertContains(res, 'href="/admin/login/?next=/private-reports/"')
+        self.assertNotContains(res, 'data-tooltip="Toss Premarket"')
+        self.assertNotContains(res, 'href="/toss-reports/"')
         self.client.force_login(self.owner)
         res = self.client.get(reverse("about"))
-        self.assertContains(res, 'href="/toss-reports/" data-tooltip="Toss Premarket"')
+        self.assertContains(res, 'href="/private-reports/"')
+        self.assertNotContains(res, 'data-tooltip="Toss Premarket"')
+
+    def test_integrated_report_switcher_in_private_and_toss_portals(self):
+        self.client.force_login(self.owner)
+        # 1. Check Email Agent portal (/private-reports/)
+        res_email = self.client.get(reverse("private_reports"))
+        self.assertEqual(res_email.status_code, 200)
+        self.assertContains(res_email, 'class="report-switcher"')
+        self.assertContains(res_email, 'class="report-switch-btn active" aria-current="page">Email</a>')
+        self.assertContains(res_email, 'href="/toss-reports/" class="report-switch-btn">Toss Premarket</a>')
+        self.assertContains(res_email, 'Admin ⚙️')
+        self.assertContains(res_email, '로그아웃 🔒')
+
+        # 2. Check Toss Premarket portal (/toss-reports/)
+        res_toss = self.client.get(reverse("toss_reports"))
+        self.assertEqual(res_toss.status_code, 200)
+        self.assertContains(res_toss, 'class="report-switcher"')
+        self.assertContains(res_toss, 'href="/private-reports/" class="report-switch-btn">Email</a>')
+        self.assertContains(res_toss, 'class="report-switch-btn active" aria-current="page">Toss Premarket</a>')
+        self.assertContains(res_toss, 'Admin ⚙️')
+        self.assertContains(res_toss, '로그아웃 🔒')
 
 
 class TestTossArchiveHelpers(SimpleTestCase):

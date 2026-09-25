@@ -60,6 +60,38 @@
     .portal-title { font-size: 18px; }
     .custom-range-group { flex-wrap: wrap; }
   }
+  .report-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #14141e;
+    padding: 3px;
+    border-radius: 9px;
+    border: 1px solid #36364a;
+  }
+  .report-switch-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    text-decoration: none;
+    border: 1px solid transparent;
+    color: #a1a5b7;
+    background: transparent;
+    transition: all 0.2s ease;
+  }
+  .report-switch-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .report-switch-btn.active {
+    background: #4338ca;
+    border-color: #6366f1;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.35);
+  }
+
 </style>
 {% endblock %}
 
@@ -93,6 +125,10 @@
     </form>
     <div class="portal-controls">
       <a class="btn-action" href="{% url 'toss_reports' %}">전체 보관 목록</a>
+      <div class="report-switcher" role="navigation" aria-label="보고서 종류 선택">
+        <a href="{% url 'private_reports' %}" class="report-switch-btn">Email</a>
+        <a href="{% url 'toss_reports' %}" class="report-switch-btn active" aria-current="page">Toss Premarket</a>
+      </div>
       <a class="btn-action" href="{% url 'admin:index' %}" target="_blank" rel="noopener">Admin ⚙️</a>
       <form method="post" action="{% url 'admin:logout' %}?next=/">
         {% csrf_token %}

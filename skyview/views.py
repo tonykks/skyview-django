@@ -486,8 +486,10 @@ def _get_toss_token() -> str:
 
 def _get_toss_local_archive_dir() -> Path | None:
     configured = os.environ.get("TOSS_REPORTS_LOCAL_PATH")
-    archive_dir = Path(configured).expanduser() if configured else Path(
-        r"c:\Users\김광수\Desktop\Toss_Invest_Agent\premarket\github\reports\archive"
+    archive_dir = (
+        Path(configured).expanduser()
+        if configured
+        else (Path.home() / "Desktop" / "Toss_Invest_Agent" / "premarket" / "github" / "reports" / "archive")
     )
     return archive_dir if (archive_dir / "manifest.json").is_file() else None
 
@@ -530,8 +532,13 @@ def _fetch_toss_archive_info() -> tuple[dict, list[str], str | None]:
                 raise ValueError("Invalid date entry")
         return manifest_data, manifest_data.get("date_list", []), None
     except urllib.error.HTTPError as exc:
+        token_source = "TOSS_AGENT_GITHUB_TOKEN" if os.environ.get("TOSS_AGENT_GITHUB_TOKEN") else "EMAIL_AGENT_GITHUB_TOKEN"
         if exc.code in (401, 403, 404):
-            return {}, [], "GitHub API 인증/권한 오류 (Token 설정 및 리포지토리 읽기 권한 확인 필요)"
+            return {}, [], (
+                f"GitHub API 인증/권한 오류 ({exc.code}). "
+                f"현재 설정된 토큰({token_source})으로 Private 저장소 'tonykks/Toss_Invest_Agent'를 읽을 수 없습니다. "
+                "토큰에 Toss 저장소 Contents 읽기 권한(Contents: Read-only)이 부여되어 있는지 확인해 주세요."
+            )
         return {}, [], f"GitHub API HTTP 오류 ({exc.code})"
     except (ValueError, UnicodeError):
         return {}, [], "Toss 보고서 보관 목록 형식이 올바르지 않습니다."
