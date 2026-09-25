@@ -471,8 +471,12 @@ class TestTossReportsPortalViews(TestCase):
         res_email = self.client.get(reverse("private_reports"))
         self.assertEqual(res_email.status_code, 200)
         self.assertContains(res_email, 'class="report-switcher"')
-        self.assertContains(res_email, 'class="report-switch-btn active" aria-current="page">Email</a>')
-        self.assertContains(res_email, 'href="/toss-reports/" class="report-switch-btn">Toss Premarket</a>')
+        self.assertContains(res_email, 'class="report-switch-btn active" aria-current="page"')
+        self.assertContains(res_email, '>Email</a>')
+        self.assertContains(res_email, 'href="/toss-reports/" class="report-switch-btn"')
+        self.assertContains(res_email, '>Market</a>')
+        self.assertContains(res_email, 'href="tony-invest://open" class="report-switch-btn invest-btn"')
+        self.assertContains(res_email, 'Invest ⚡')
         self.assertContains(res_email, 'Admin ⚙️')
         self.assertContains(res_email, '로그아웃 🔒')
 
@@ -480,10 +484,16 @@ class TestTossReportsPortalViews(TestCase):
         res_toss = self.client.get(reverse("toss_reports"))
         self.assertEqual(res_toss.status_code, 200)
         self.assertContains(res_toss, 'class="report-switcher"')
-        self.assertContains(res_toss, 'href="/private-reports/" class="report-switch-btn">Email</a>')
-        self.assertContains(res_toss, 'class="report-switch-btn active" aria-current="page">Toss Premarket</a>')
+        self.assertContains(res_toss, 'href="/private-reports/" class="report-switch-btn"')
+        self.assertContains(res_toss, '>Email</a>')
+        self.assertContains(res_toss, 'href="/toss-reports/" class="report-switch-btn active" aria-current="page"')
+        self.assertContains(res_toss, '>Market</a>')
+        self.assertContains(res_toss, 'href="tony-invest://open" class="report-switch-btn invest-btn"')
+        self.assertContains(res_toss, 'Invest ⚡')
         self.assertContains(res_toss, 'Admin ⚙️')
         self.assertContains(res_toss, '로그아웃 🔒')
+        # Ensure duplicate top link in toss_reports is removed
+        self.assertNotContains(res_toss, 'Email Agent 보고서 보기')
 
 
 class TestTossArchiveHelpers(SimpleTestCase):

@@ -70,7 +70,13 @@
     border: 1px solid #36364a;
   }
   .report-switch-btn {
-    padding: 6px 14px;
+    min-width: 68px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 6px 12px;
     font-size: 13px;
     font-weight: 500;
     border-radius: 6px;
@@ -79,6 +85,12 @@
     color: #a1a5b7;
     background: transparent;
     transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  .report-switch-btn.invest-btn:hover {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.3);
   }
   .report-switch-btn:hover {
     color: #ffffff;
@@ -102,7 +114,6 @@
       <h1 class="portal-title">토스 프리마켓 보고서 (Toss Premarket)</h1>
       <span class="badge-owner">Owner Authorized</span>
     </div>
-    <a class="btn-action" href="{% url 'private_reports' %}">Email Agent 보고서 보기</a>
     <form class="portal-controls" method="get" action="{% url 'toss_reports' %}">
       <div class="period-picker-group">
         <label for="period-select">조회 기간:</label>
@@ -125,9 +136,10 @@
     </form>
     <div class="portal-controls">
       <a class="btn-action" href="{% url 'toss_reports' %}">전체 보관 목록</a>
-      <div class="report-switcher" role="navigation" aria-label="보고서 종류 선택">
-        <a href="{% url 'private_reports' %}" class="report-switch-btn">Email</a>
-        <a href="{% url 'toss_reports' %}" class="report-switch-btn active" aria-current="page">Toss Premarket</a>
+      <div class="report-switcher" role="navigation" aria-label="서비스 및 보고서 전환">
+        <a href="{% url 'private_reports' %}" class="report-switch-btn" title="Email Agent 브리핑 보고서" aria-label="Email Agent">Email</a>
+        <a href="{% url 'toss_reports' %}" class="report-switch-btn active" aria-current="page" title="Toss Premarket 시장 보고서" aria-label="Market">Market</a>
+        <a href="tony-invest://open" class="report-switch-btn invest-btn" title="로컬 Toss Invest Agent 실행 (127.0.0.1:5000)" aria-label="로컬 Invest 실행">Invest ⚡</a>
       </div>
       <a class="btn-action" href="{% url 'admin:index' %}" target="_blank" rel="noopener">Admin ⚙️</a>
       <form method="post" action="{% url 'admin:logout' %}?next=/">
