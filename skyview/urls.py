@@ -19,4 +19,8 @@ urlpatterns = [
     path("private-reports/", views.private_reports, name="private_reports"),
     path("private-reports/api/list/", views.private_reports_api_list, name="private_reports_api_list"),
     path("private-reports/api/view/<str:date_str>/", views.private_reports_api_view, name="private_reports_api_view"),
+    path("toss-reports/", views.toss_reports, name="toss_reports"),
+    path("toss-reports/api/list/", views.toss_reports_api_list, name="toss_reports_api_list"),
+    path("toss-reports/api/view/<str:date_str>/", views.toss_reports_api_view, name="toss_reports_api_view"),
+    path("toss-reports/api/view/<str:date_str>/<str:run_id>/", views.toss_reports_api_view, name="toss_reports_api_view_run"),
 ]

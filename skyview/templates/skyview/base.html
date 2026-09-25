@@ -27,8 +27,10 @@
           <a class="nav-circle" href="{% url 'about' %}" data-tooltip="About" aria-label="About">A</a>
           {% if is_owner %}
           <a class="nav-circle owner-nav" href="{% url 'private_reports' %}" data-tooltip="Email Agent" aria-label="Email Agent">M</a>
+          <a class="nav-circle owner-nav" href="{% url 'toss_reports' %}" data-tooltip="Toss Premarket" aria-label="Toss Premarket">T</a>
           {% else %}
-          <a class="nav-circle" href="{% url 'admin:login' %}?next={% url 'private_reports' %}" data-tooltip="Login" aria-label="Login">M</a>
+          <a class="nav-circle" href="{% url 'admin:login' %}?next={% url 'private_reports' %}" data-tooltip="Login (Email)" aria-label="Login">M</a>
+          <a class="nav-circle" href="{% url 'admin:login' %}?next={% url 'toss_reports' %}" data-tooltip="Login (Toss)" aria-label="Login">T</a>
           {% endif %}
         </nav>
       </header>

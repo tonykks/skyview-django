@@ -1,0 +1,234 @@
+{% extends "skyview/private_reports.html" %}
+
+{% block title %}토스 프리마켓 보고서 (Toss Premarket) | Skyview Portal{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+  .portal-title-group { flex-wrap: wrap; }
+  .portal-controls { margin: 0; }
+  .date-item-btn { box-sizing: border-box; text-decoration: none; }
+  .date-list-items { list-style: none; margin: 0; padding-left: 0; }
+  .viewer-container { min-width: 0; }
+  .viewer-header { flex-wrap: wrap; gap: 12px; }
+  .run-picker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    background: #1e1e2d;
+    border-radius: 10px;
+    padding: 12px 20px;
+    color: #a1a5b7;
+    font-size: 13px;
+  }
+  .run-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid #474761;
+    border-radius: 999px;
+    background: #2b2b40;
+    color: #ffffff;
+    text-decoration: none;
+  }
+  .run-pill:hover, .run-pill.active { background: #4338ca; border-color: #818cf8; }
+  .run-default { font-size: 11px; color: #c7d2fe; }
+  .report-notice {
+    margin: 0;
+    padding: 12px 20px;
+    background: #322b20;
+    border: 1px solid #806438;
+    border-radius: 10px;
+    color: #f8d38a;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .btn-action:focus-visible, .date-item-btn:focus-visible, .run-pill:focus-visible {
+    outline: 2px solid #a5b4fc;
+    outline-offset: 3px;
+  }
+  .date-select, .date-input { color-scheme: dark; }
+  .btn-action { font-family: inherit; cursor: pointer; }
+  @media (max-width: 1120px) {
+    .date-list-items li { flex: 1 0 145px; }
+  }
+  @media (max-width: 600px) {
+    .portal-container { padding: 0 8px; }
+    .portal-header { padding: 16px; }
+    .portal-title { font-size: 18px; }
+    .custom-range-group { flex-wrap: wrap; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="portal-container">
+  <div class="portal-header">
+    <div class="portal-title-group">
+      <h1 class="portal-title">토스 프리마켓 보고서 (Toss Premarket)</h1>
+      <span class="badge-owner">Owner Authorized</span>
+    </div>
+    <a class="btn-action" href="{% url 'private_reports' %}">Email Agent 보고서 보기</a>
+    <form class="portal-controls" method="get" action="{% url 'toss_reports' %}">
+      <div class="period-picker-group">
+        <label for="period-select">조회 기간:</label>
+        <select id="period-select" name="period" class="date-select">
+          <option value="all" {% if active_period == 'all' %}selected{% endif %}>전체 보관 목록</option>
+          <option value="1day" {% if active_period == '1day' %}selected{% endif %}>하루 (오늘)</option>
+          <option value="3days" {% if active_period == '3days' %}selected{% endif %}>최근 3일</option>
+          <option value="7days" {% if active_period == '7days' %}selected{% endif %}>최근 7일</option>
+          <option value="30days" {% if active_period == '30days' %}selected{% endif %}>최근 30일</option>
+          <option value="custom" {% if active_period == 'custom' %}selected{% endif %}>직접 기간 지정</option>
+        </select>
+      </div>
+      <div id="custom-range-group" class="custom-range-group">
+        <label for="start-date-input">시작일</label>
+        <input type="date" id="start-date-input" name="start_date" value="{{ start_date }}" class="date-input">
+        <label for="end-date-input">종료일</label>
+        <input type="date" id="end-date-input" name="end_date" value="{{ end_date }}" class="date-input">
+      </div>
+      <button type="submit" class="btn-action">조회</button>
+    </form>
+    <div class="portal-controls">
+      <a class="btn-action" href="{% url 'toss_reports' %}">전체 보관 목록</a>
+      <a class="btn-action" href="{% url 'admin:index' %}" target="_blank" rel="noopener">Admin ⚙️</a>
+      <form method="post" action="{% url 'admin:logout' %}?next=/">
+        {% csrf_token %}
+        <button type="submit" class="btn-action">로그아웃 🔒</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="portal-main-layout">
+    {% if dates %}
+    <nav class="date-list-panel" aria-label="보고서 보관 날짜">
+      <div class="date-list-header">
+        <span class="date-list-title">📅 보관 날짜 목록</span>
+        <span class="date-count-badge">{{ dates|length }}일</span>
+      </div>
+      <ul class="date-list-items">
+        {% for entry in date_entries %}
+        <li>
+          <a class="date-item-btn {% if entry.date == selected_date %}active{% endif %}"
+             href="{% url 'toss_reports' %}?period={{ active_period|urlencode }}&amp;start_date={{ start_date|urlencode }}&amp;end_date={{ end_date|urlencode }}&amp;date={{ entry.date|urlencode }}"
+             {% if entry.date == selected_date %}aria-current="date"{% endif %}>
+            <span class="date-item-main">
+              <span class="date-item-text">{{ entry.date }}</span>
+              {% if entry.date == all_dates.0 %}<span class="date-item-tag latest">최신</span>{% endif %}
+            </span>
+            <span class="date-item-sub">{% if entry.run_count > 1 %}하루 {{ entry.run_count }}회 실행{% else %}보고서 원본 📄{% endif %}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </nav>
+    {% endif %}
+
+    <section class="viewer-container" aria-label="Toss 보고서 뷰어">
+      {% if api_error %}
+      <div class="iframe-wrapper">
+        <div class="empty-state" role="alert">
+          <h2>보고서 목록을 불러오지 못했습니다.</h2>
+          <p>{{ api_error }}</p>
+        </div>
+      </div>
+      {% elif has_no_reports_in_period %}
+      <div class="iframe-wrapper">
+        <div class="empty-state">
+          <h2>선택한 기간({{ start_date }} ~ {{ end_date }})에 보관된 보고서가 없습니다.</h2>
+          <p>조회 기간을 변경하거나 전체 보관 목록을 확인해 주세요.</p>
+        </div>
+      </div>
+      {% elif selected_date %}
+      <div class="viewer-header">
+        <div class="viewing-date-label" aria-live="polite">
+          현재 조회 중: <strong>{{ selected_date }} 보고서</strong>
+          <span id="selected-run-display">{{ selected_run.time }}{% if selected_run.time %} KST{% endif %}</span>
+        </div>
+        <a id="btn-open-newtab"
+           href="{% if selected_run_id %}{% url 'toss_reports_api_view_run' date_str=selected_date run_id=selected_run_id %}{% else %}{% url 'toss_reports_api_view' date_str=selected_date %}{% endif %}"
+           class="btn-action" target="_blank" rel="noopener">새 탭에서 열기 ↗</a>
+      </div>
+      {% if runs|length > 1 %}
+      <nav class="run-picker" aria-label="실행 시간 선택">
+        <span>실행 시간 (KST)</span>
+        {% for run in runs %}
+        <a class="run-pill {% if run.run_id == selected_run_id %}active{% endif %}"
+           href="{% url 'toss_reports' %}?period={{ active_period|urlencode }}&amp;start_date={{ start_date|urlencode }}&amp;end_date={{ end_date|urlencode }}&amp;date={{ selected_date|urlencode }}&amp;run_id={{ run.run_id|urlencode }}"
+           data-report-url="{% url 'toss_reports_api_view_run' date_str=selected_date run_id=run.run_id %}"
+           data-run-time="{{ run.time }}" data-derived="{{ run.is_derived_html|yesno:'true,false' }}"
+           aria-current="{% if run.run_id == selected_run_id %}true{% else %}false{% endif %}">
+          {{ run.time|default:run.run_id }}
+          {% if run.is_default %}<span class="run-default">기본</span>{% endif %}
+          {% if run.is_derived_html %}<span class="run-default">복원본</span>{% endif %}
+        </a>
+        {% endfor %}
+      </nav>
+      {% endif %}
+      <p id="report-notice" class="report-notice" data-legacy-date="{% if selected_date == '2026-07-29' %}true{% else %}false{% endif %}"
+         {% if selected_date != '2026-07-29' and not selected_run.is_derived_html %}hidden{% endif %}>
+        안내: 2026-07-29 일부 실행은 원본 HTML이 없어 Markdown에서 복원한 보고서입니다.
+        ‘복원본’ 표시가 있는 실행은 원본과 화면 구성이 다를 수 있습니다.
+      </p>
+      <div class="iframe-wrapper">
+        <iframe
+          id="report-frame"
+          class="report-frame"
+          src="{% if selected_run_id %}{% url 'toss_reports_api_view_run' date_str=selected_date run_id=selected_run_id %}{% else %}{% url 'toss_reports_api_view' date_str=selected_date %}{% endif %}"
+          title="Toss Premarket Report Viewer"
+          sandbox="allow-scripts allow-popups"
+          loading="lazy"
+        ></iframe>
+      </div>
+      {% else %}
+      <div class="iframe-wrapper">
+        <div class="empty-state">
+          <h2>보관된 보고서가 없습니다.</h2>
+          <p>새로운 보고서가 생성되면 이곳에 자동으로 표시됩니다.</p>
+        </div>
+      </div>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+  const periodSelect = document.getElementById('period-select');
+  const customRange = document.getElementById('custom-range-group');
+  const syncPeriod = () => {
+    customRange.style.display = periodSelect.value === 'custom' ? 'flex' : 'none';
+    customRange.querySelectorAll('input').forEach(input => {
+      input.required = periodSelect.value === 'custom';
+      input.disabled = periodSelect.value !== 'custom';
+    });
+  };
+  syncPeriod();
+  periodSelect.addEventListener('change', () => {
+    syncPeriod();
+    if (periodSelect.value !== 'custom') periodSelect.form.requestSubmit();
+  });
+
+  const pills = document.querySelectorAll('.run-pill');
+  pills.forEach(pill => pill.addEventListener('click', event => {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
+    event.preventDefault();
+    pills.forEach(item => {
+      const active = item === pill;
+      item.classList.toggle('active', active);
+      item.setAttribute('aria-current', active ? 'true' : 'false');
+    });
+    document.getElementById('report-frame').src = pill.dataset.reportUrl;
+    document.getElementById('btn-open-newtab').href = pill.dataset.reportUrl;
+    document.getElementById('selected-run-display').textContent = pill.dataset.runTime ? pill.dataset.runTime + ' KST' : '';
+    const notice = document.getElementById('report-notice');
+    notice.hidden = notice.dataset.legacyDate !== 'true' && pill.dataset.derived !== 'true';
+    window.history.replaceState(null, '', pill.href);
+  }));
+})();
+</script>
+{% endblock %}
