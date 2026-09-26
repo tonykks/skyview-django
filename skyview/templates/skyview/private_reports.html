@@ -294,6 +294,16 @@
     transition: all 0.2s ease;
     white-space: nowrap;
   }
+    .report-switch-btn.library-btn {
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.35);
+  }
+  .report-switch-btn.library-btn:hover {
+    color: #6ee7b7;
+    background: rgba(52, 211, 153, 0.15);
+    border-color: rgba(52, 211, 153, 0.6);
+    box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+  }
   .report-switch-btn.invest-btn:hover {
     color: #38bdf8;
     background: rgba(56, 189, 248, 0.12);
@@ -344,6 +354,7 @@
         <a href="{% url 'private_reports' %}" class="report-switch-btn active" aria-current="page" title="Email Agent 브리핑 보고서" aria-label="Email Agent">Email</a>
         <a href="{% url 'toss_reports' %}" class="report-switch-btn" title="Toss Premarket 시장 보고서" aria-label="Market">Market</a>
         <a href="tony-invest://open" class="report-switch-btn invest-btn" title="로컬 Toss Invest Agent 실행 (127.0.0.1:5000)" aria-label="로컬 Invest 실행">Invest ⚡</a>
+        <a href="http://127.0.0.1:8080" class="report-switch-btn library-btn" target="_blank" rel="noopener noreferrer" title="내 PC YouTube 지식 도서관 열기 (127.0.0.1:8080 - 로컬 서버 실행 필요)" aria-label="지식 도서관">지식 도서관 📚</a>
       </div>
       <a href="/admin/" class="btn-action" target="_blank" rel="noopener">Admin ⚙️</a>
       <form method="post" action="{% url 'admin:logout' %}?next=/" style="display: inline;">
