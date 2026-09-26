@@ -24,11 +24,11 @@
           <a class="nav-circle" href="{% url 'place_list' %}" data-tooltip="장소별영상" aria-label="장소별영상">P</a>
           <a class="nav-circle" href="{% url 'landscape_videos' %}" data-tooltip="16:9" aria-label="16:9">L</a>
           <a class="nav-circle" href="{% url 'shorts_videos' %}" data-tooltip="9:16" aria-label="9:16">S</a>
-          <a class="nav-circle" href="{% url 'about' %}" data-tooltip="About" aria-label="About">A</a>
+          <a class="nav-circle" href="{% url 'about' %}" data-tooltip="About" aria-label="About">ⓘ</a>
           {% if is_owner %}
-          <a class="nav-circle owner-nav" href="{% url 'private_reports' %}" data-tooltip="Reports Portal" aria-label="Reports Portal">M</a>
+          <a class="nav-circle owner-nav" href="{% url 'private_reports' %}" data-tooltip="Admin" aria-label="Admin">A</a>
           {% else %}
-          <a class="nav-circle" href="{% url 'admin:login' %}?next={% url 'private_reports' %}" data-tooltip="Login" aria-label="Login">M</a>
+          <a class="nav-circle" href="{% url 'admin:login' %}?next={% url 'private_reports' %}" data-tooltip="Admin" aria-label="Admin">A</a>
           {% endif %}
         </nav>
       </header>
