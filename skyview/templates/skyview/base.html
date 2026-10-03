@@ -43,19 +43,30 @@
           <details class="family-dropdown">
             <summary class="family-dropdown__toggle">Family Sites ▾</summary>
             <ul class="family-dropdown__menu">
-              {% for site in family_sites %}
-              <li>
-                <a href="{{ site.url }}" target="_blank" rel="noopener noreferrer"
-                  >{{ site.title }}</a
-                >
-              </li>
-              {% endfor %}
               <li>
                 <a href="https://tonykks.github.io/tony-knowledge-library/" target="_blank" rel="noopener noreferrer">Knowledge Library</a>
               </li>
               <li>
                 <a href="https://tonykks.github.io/tony-english-shadowing/" target="_blank" rel="noopener noreferrer">English Shadowing</a>
               </li>
+              {% for site in family_sites %}
+              {% if "english study site" not in site.title|lower and "english-study-site" not in site.url|lower and "hallim" not in site.title|lower and "hallim" not in site.url|lower %}
+              <li>
+                <a href="{{ site.url }}" target="_blank" rel="noopener noreferrer"
+                  >{{ site.title }}</a
+                >
+              </li>
+              {% endif %}
+              {% endfor %}
+              {% for site in family_sites %}
+              {% if "hallim" in site.title|lower or "hallim" in site.url|lower %}
+              <li>
+                <a href="{{ site.url }}" target="_blank" rel="noopener noreferrer"
+                  >{{ site.title }}</a
+                >
+              </li>
+              {% endif %}
+              {% endfor %}
             </ul>
           </details>
           {% endif %}

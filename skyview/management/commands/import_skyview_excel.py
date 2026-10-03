@@ -10,12 +10,6 @@ from skyview.utils import convert_video_type, extract_youtube_id, shorten_title
 
 FAMILY_SITE_SEED_DATA = [
     {
-        "title": "English Study Site",
-        "url": "https://tonykks.github.io/english-study-site/",
-        "description": "영어 학습 자료 사이트",
-        "order": 1,
-    },
-    {
         "title": "Hallim Youth English",
         "url": "https://tonykks.github.io/hallim-youth-english/",
         "description": "한림 청소년 영어 학습 사이트",
@@ -108,6 +102,9 @@ class Command(BaseCommand):
 
     def _import_family_sites(self):
         count = 0
+        FamilySite.objects.filter(
+            title__iexact="English Study Site"
+        ).update(is_active=False)
         for item in FAMILY_SITE_SEED_DATA:
             FamilySite.objects.update_or_create(
                 title=item["title"],

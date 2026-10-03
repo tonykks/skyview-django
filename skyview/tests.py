@@ -1,4 +1,4 @@
-﻿import os
+import os
 import urllib.error
 import json
 import tempfile
@@ -549,3 +549,49 @@ class TestTossArchiveHelpers(SimpleTestCase):
         for invalid in ([], {"date_list": "invalid"}, {"dates": [None]}, {"dates": [{"date": "2026-09-25", "runs": [None]}]}):
             network.return_value.__enter__.return_value.read.return_value = json.dumps(invalid).encode()
             self.assertIn("형식이 올바르지 않습니다", _fetch_toss_archive_info()[2])
+
+
+class TestFamilySites(TestCase):
+    def setUp(self):
+        from .models import FamilySite
+        self.client = Client()
+        FamilySite.objects.create(
+            title="English Study Site",
+            url="https://tonykks.github.io/english-study-site/",
+            is_active=True,
+        )
+        FamilySite.objects.create(
+            title="Hallim Youth English",
+            url="https://tonykks.github.io/hallim-youth-english/",
+            is_active=True,
+        )
+
+    def test_family_sites_filter_and_order(self):
+        from .views import _family_sites
+        sites = list(_family_sites())
+        titles = [s.title for s in sites]
+        self.assertNotIn("English Study Site", titles)
+        self.assertIn("Hallim Youth English", titles)
+
+    def test_rendered_dropdown_order_and_exclusion(self):
+        res = self.client.get(reverse("home"))
+        self.assertEqual(res.status_code, 200)
+        content = res.content.decode("utf-8")
+
+        self.assertNotIn("English Study Site", content)
+        self.assertIn("Knowledge Library", content)
+        self.assertIn("English Shadowing", content)
+        self.assertIn("Hallim Youth English", content)
+
+        idx_kl = content.find("Knowledge Library")
+        idx_es = content.find("English Shadowing")
+        idx_hye = content.find("Hallim Youth English")
+
+        self.assertNotEqual(idx_kl, -1)
+        self.assertNotEqual(idx_es, -1)
+        self.assertNotEqual(idx_hye, -1)
+        self.assertTrue(
+            idx_kl < idx_es < idx_hye,
+            "Hallim Youth English must be placed after Knowledge Library and English Shadowing",
+        )
+

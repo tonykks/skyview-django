@@ -25,7 +25,15 @@ from .utils import (
 
 
 def _family_sites():
-    return FamilySite.objects.filter(is_active=True)
+    qs = (
+        FamilySite.objects.filter(is_active=True)
+        .exclude(title__iexact="English Study Site")
+        .exclude(url__icontains="english-study-site")
+    )
+    sites = list(qs)
+    hallim_sites = [s for s in sites if "hallim" in s.title.lower() or "hallim" in s.url.lower()]
+    other_sites = [s for s in sites if s not in hallim_sites]
+    return other_sites + hallim_sites
 
 
 def _recommended_videos(video_type, max_rank):
