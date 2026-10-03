@@ -7,10 +7,13 @@ Skyview의 Family Sites 목록을 최종 정리하고, GitHub 원격과 Owner �
 1. Family Sites 목록에서 **English Study Site** 항목만 제거한다.
 2. 기존 English Study Site 저장소/파일 자체는 삭제하지 않는다. 이번 작업은 **Skyview 목록에서 링크만 제거**하는 작업이다.
 3. 현재 유지할 Family Sites:
-   - Hallim Youth English
    - Knowledge Library
    - English Shadowing
-4. 표시명은 위와 같이 짧게 유지한다.
+   - Hallim Youth English
+4. **Hallim Youth English는 항상 Family Sites 목록의 맨 아래에 고정한다.**
+   - 현재뿐 아니라 앞으로 Family Sites 항목이 추가되어도 Hallim Youth English는 마지막 항목으로 유지한다.
+   - DB/템플릿 어느 쪽에서 목록을 만들더라도 표시 순서 로직에서 마지막으로 렌더링되도록 구현한다.
+5. 표시명은 위와 같이 짧게 유지한다.
 5. 각 실제 사이트 내부의 정식 이름에는 Tony's 등의 기존 브랜딩을 그대로 유지한다.
 
 ## 작업 순서
@@ -28,9 +31,9 @@ Skyview의 Family Sites 목록을 최종 정리하고, GitHub 원격과 Owner �
 현재 Skyview에서 보이는 Family Sites 중 **English Study Site**를 제거한다.
 
 중요:
-- `Hallim Youth English` 유지
 - `Knowledge Library` 유지
 - `English Shadowing` 유지
+- `Hallim Youth English` 유지 및 **항상 맨 아래 고정**
 - 링크 URL은 기존 정상 URL 그대로
 - English Study Site repo나 서비스 자체를 삭제하지 않는다.
 
@@ -41,9 +44,10 @@ Family Sites가 DB `family_sites`에서 공급되는 항목이라면 실제 sour
 ### 3. 검증
 로컬 또는 테스트 환경에서 Family Sites dropdown을 확인:
 - English Study Site 없음
-- Hallim Youth English 있음
 - Knowledge Library 있음
 - English Shadowing 있음
+- Hallim Youth English 있음
+- **Hallim Youth English가 목록의 마지막 항목인지 확인**
 - 링크 정상
 
 ### 4. GitHub 반영
@@ -80,6 +84,7 @@ Owner가 현재 `skyview.pythonanywhere.com`에 로그인되어 있다.
 ### 6. 최종 성공조건
 - Skyview Family Sites에서 English Study Site 제거
 - 나머지 3개 정상
+- **Hallim Youth English는 항상 목록 맨 아래에 고정**
 - Owner 로컬 checkout과 GitHub 원격 동기화
 - 가능하면 PythonAnywhere까지 pull + Reload + 실제 화면 검증
 - 기존 영어 사이트 저장소/파일은 삭제하지 않음
