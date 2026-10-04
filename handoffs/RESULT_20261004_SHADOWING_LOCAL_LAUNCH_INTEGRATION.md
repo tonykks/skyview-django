@@ -66,9 +66,12 @@
 ## 3. GitHub 및 PythonAnywhere 반영
 
 1. **GitHub Push**:
-   - `tonykks/english-shadowing-agent`: commit `513f795`
-   - `tonykks/skyview-django`: commit `main`
+   - `tonykks/english-shadowing-agent`: commit `513f795` (feat: implement silent launcher and tony-shadowing protocol registration)
+   - `tonykks/skyview-django`: commit `1adbc57` (feat(portal): add 영어 쉐도잉 🎧 one-click launch button to Owner Portal)
 2. **PythonAnywhere 반영 (Playwright 자동화)**:
-   - Console `48281354`: `cd ~/skyview-django && git pull --ff-only`
+   - Console `48281354`: `cd ~/skyview-django && git pull --ff-only` (commit `1adbc57` 동기화 확인)
    - Web App Setup: `skyview.pythonanywhere.com` Reload 완료
-   - 실 사이트 확인 완료
+   - 실 사이트 검증:
+     - `https://skyview.pythonanywhere.com/private-reports/`: `영어 쉐도잉 🎧` 버튼 (`tony-shadowing://open`) 노출 확인
+     - `https://skyview.pythonanywhere.com/toss-reports/`: `영어 쉐도잉 🎧` 버튼 (`tony-shadowing://open`) 노출 확인
+
