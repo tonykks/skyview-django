@@ -595,3 +595,33 @@ class TestFamilySites(TestCase):
             "Hallim Youth English must be placed after Knowledge Library and English Shadowing",
         )
 
+
+@override_settings(SKYVIEW_OWNER_USERNAMES=["owner"])
+class TestShadowingLocalLaunchIntegration(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.owner = User.objects.create_user(username="owner", password="password123", is_staff=True)
+
+    @patch("skyview.views._fetch_github_archive_info", return_value=(["2026-09-17"], None))
+    def test_private_reports_contains_shadowing_button(self, mock_info):
+        self.client.login(username="owner", password="password123")
+        res = self.client.get(reverse("private_reports"))
+        self.assertEqual(res.status_code, 200)
+        content = res.content.decode("utf-8")
+        self.assertIn('href="tony-shadowing://open"', content)
+        self.assertIn("영어 쉐도잉 🎧", content)
+        self.assertIn('class="report-switch-btn shadowing-btn"', content)
+        self.assertIn('aria-label="영어 쉐도잉"', content)
+
+    @patch("skyview.views._fetch_toss_archive_info", return_value=({}, [], None))
+    def test_toss_reports_contains_shadowing_button(self, mock_info):
+        self.client.login(username="owner", password="password123")
+        res = self.client.get(reverse("toss_reports"))
+        self.assertEqual(res.status_code, 200)
+        content = res.content.decode("utf-8")
+        self.assertIn('href="tony-shadowing://open"', content)
+        self.assertIn("영어 쉐도잉 🎧", content)
+        self.assertIn('class="report-switch-btn shadowing-btn"', content)
+        self.assertIn('aria-label="영어 쉐도잉"', content)
+
+

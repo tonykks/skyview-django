@@ -304,6 +304,16 @@
     border-color: rgba(52, 211, 153, 0.6);
     box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
   }
+  .report-switch-btn.shadowing-btn {
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.35);
+  }
+  .report-switch-btn.shadowing-btn:hover {
+    color: #7dd3fc;
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.6);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  }
   .report-switch-btn.invest-btn:hover {
     color: #38bdf8;
     background: rgba(56, 189, 248, 0.12);
@@ -355,6 +365,7 @@
         <a href="{% url 'toss_reports' %}" class="report-switch-btn" title="Toss Premarket 시장 보고서" aria-label="Market">Market</a>
         <a href="tony-invest://open" class="report-switch-btn invest-btn" title="로컬 Toss Invest Agent 실행 (127.0.0.1:5000)" aria-label="로컬 Invest 실행">Invest ⚡</a>
         <a href="tony-library://open" class="report-switch-btn library-btn" title="내 PC YouTube 지식 도서관 자동 실행 (127.0.0.1:8080 서버 자동 시작 및 연결)" aria-label="지식 도서관">지식 도서관 📚</a>
+        <a href="tony-shadowing://open" class="report-switch-btn shadowing-btn" title="내 PC English Shadowing Local Admin 자동 실행 (127.0.0.1:8765 서버 자동 시작 및 연결)" aria-label="영어 쉐도잉">영어 쉐도잉 🎧</a>
       </div>
       <a href="/admin/" class="btn-action" target="_blank" rel="noopener">Admin ⚙️</a>
       <form method="post" action="{% url 'admin:logout' %}?next=/" style="display: inline;">
