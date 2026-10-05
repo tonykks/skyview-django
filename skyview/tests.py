@@ -558,11 +558,25 @@ class TestFamilySites(TestCase):
         FamilySite.objects.create(
             title="English Study Site",
             url="https://tonykks.github.io/english-study-site/",
+            order=1,
+            is_active=True,
+        )
+        FamilySite.objects.create(
+            title="Vibe Coding Guide",
+            url="https://tonykks.github.io/career-pathfinder-app-b/",
+            order=3,
+            is_active=True,
+        )
+        FamilySite.objects.create(
+            title="Pet-Friendly Jeju",
+            url="https://tonykks.github.io/DANGJEJU_2/",
+            order=4,
             is_active=True,
         )
         FamilySite.objects.create(
             title="Hallim Youth English",
             url="https://tonykks.github.io/hallim-youth-english/",
+            order=5,
             is_active=True,
         )
 
@@ -571,29 +585,66 @@ class TestFamilySites(TestCase):
         sites = list(_family_sites())
         titles = [s.title for s in sites]
         self.assertNotIn("English Study Site", titles)
+        self.assertIn("Vibe Coding Guide", titles)
+        self.assertIn("Pet-Friendly Jeju", titles)
         self.assertIn("Hallim Youth English", titles)
+        self.assertTrue(
+            titles.index("Vibe Coding Guide") < titles.index("Pet-Friendly Jeju"),
+            "Vibe Coding Guide must come before Pet-Friendly Jeju",
+        )
+        self.assertEqual(
+            titles[-1],
+            "Hallim Youth English",
+            "Hallim Youth English must always be at the end of the list",
+        )
 
     def test_rendered_dropdown_order_and_exclusion(self):
         res = self.client.get(reverse("home"))
         self.assertEqual(res.status_code, 200)
         content = res.content.decode("utf-8")
 
+        self.assertIn("My Portfolio ▾", content)
         self.assertNotIn("English Study Site", content)
         self.assertIn("Knowledge Library", content)
         self.assertIn("English Shadowing", content)
+        self.assertIn("Vibe Coding Guide", content)
+        self.assertIn("Pet-Friendly Jeju", content)
         self.assertIn("Hallim Youth English", content)
 
         idx_kl = content.find("Knowledge Library")
         idx_es = content.find("English Shadowing")
+        idx_vcg = content.find("Vibe Coding Guide")
+        idx_pfj = content.find("Pet-Friendly Jeju")
         idx_hye = content.find("Hallim Youth English")
 
         self.assertNotEqual(idx_kl, -1)
         self.assertNotEqual(idx_es, -1)
+        self.assertNotEqual(idx_vcg, -1)
+        self.assertNotEqual(idx_pfj, -1)
         self.assertNotEqual(idx_hye, -1)
         self.assertTrue(
-            idx_kl < idx_es < idx_hye,
-            "Hallim Youth English must be placed after Knowledge Library and English Shadowing",
+            idx_kl < idx_es < idx_vcg < idx_pfj < idx_hye,
+            "Dropdown order must be: Knowledge Library -> English Shadowing -> Vibe Coding Guide -> Pet-Friendly Jeju -> Hallim Youth English",
         )
+
+        # Verify URLs
+        self.assertIn('href="https://tonykks.github.io/tony-knowledge-library/"', content)
+        self.assertIn('href="https://tonykks.github.io/tony-english-shadowing/"', content)
+        self.assertIn('href="https://tonykks.github.io/career-pathfinder-app-b/"', content)
+        self.assertIn('href="https://tonykks.github.io/DANGJEJU_2/"', content)
+        self.assertIn('href="https://tonykks.github.io/hallim-youth-english/"', content)
+
+    def test_import_skyview_excel_sites_only_command(self):
+        from django.core.management import call_command
+        from .models import FamilySite
+        call_command("import_skyview_excel", sites_only=True)
+        active_titles = list(
+            FamilySite.objects.filter(is_active=True).values_list("title", flat=True)
+        )
+        self.assertIn("Vibe Coding Guide", active_titles)
+        self.assertIn("Pet-Friendly Jeju", active_titles)
+        self.assertIn("Hallim Youth English", active_titles)
+        self.assertNotIn("English Study Site", active_titles)
 
 
 @override_settings(SKYVIEW_OWNER_USERNAMES=["owner"])

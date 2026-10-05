@@ -29,6 +29,7 @@ def _family_sites():
         FamilySite.objects.filter(is_active=True)
         .exclude(title__iexact="English Study Site")
         .exclude(url__icontains="english-study-site")
+        .order_by("order", "title")
     )
     sites = list(qs)
     hallim_sites = [s for s in sites if "hallim" in s.title.lower() or "hallim" in s.url.lower()]

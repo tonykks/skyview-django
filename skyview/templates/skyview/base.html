@@ -41,7 +41,7 @@
           <p class="copyright">© 2026 Tony's SkyView</p>
           {% if family_sites %}
           <details class="family-dropdown">
-            <summary class="family-dropdown__toggle">Family Sites ▾</summary>
+            <summary class="family-dropdown__toggle">My Portfolio ▾</summary>
             <ul class="family-dropdown__menu">
               <li>
                 <a href="https://tonykks.github.io/tony-knowledge-library/" target="_blank" rel="noopener noreferrer">Knowledge Library</a>
@@ -50,7 +50,7 @@
                 <a href="https://tonykks.github.io/tony-english-shadowing/" target="_blank" rel="noopener noreferrer">English Shadowing</a>
               </li>
               {% for site in family_sites %}
-              {% if "english study site" not in site.title|lower and "english-study-site" not in site.url|lower and "hallim" not in site.title|lower and "hallim" not in site.url|lower %}
+              {% if "english study site" not in site.title|lower and "english-study-site" not in site.url|lower and "hallim" not in site.title|lower and "hallim" not in site.url|lower and "knowledge library" not in site.title|lower and "tony-knowledge-library" not in site.url|lower and "english shadowing" not in site.title|lower and "tony-english-shadowing" not in site.url|lower %}
               <li>
                 <a href="{{ site.url }}" target="_blank" rel="noopener noreferrer"
                   >{{ site.title }}</a

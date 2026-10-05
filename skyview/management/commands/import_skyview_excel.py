@@ -10,10 +10,22 @@ from skyview.utils import convert_video_type, extract_youtube_id, shorten_title
 
 FAMILY_SITE_SEED_DATA = [
     {
+        "title": "Vibe Coding Guide",
+        "url": "https://tonykks.github.io/career-pathfinder-app-b/",
+        "description": "초·중등 Vibe Coding 수업 교안 및 AI 기획·구현 포트폴리오",
+        "order": 3,
+    },
+    {
+        "title": "Pet-Friendly Jeju",
+        "url": "https://tonykks.github.io/DANGJEJU_2/",
+        "description": "제주 반려동물 동반 여행 Web App 팀 프로젝트",
+        "order": 4,
+    },
+    {
         "title": "Hallim Youth English",
         "url": "https://tonykks.github.io/hallim-youth-english/",
         "description": "한림 청소년 영어 학습 사이트",
-        "order": 2,
+        "order": 5,
     },
 ]
 
@@ -27,8 +39,22 @@ class Command(BaseCommand):
             default="skyview.xlsx",
             help="Path to the Excel file (default: skyview.xlsx in project root)",
         )
+        parser.add_argument(
+            "--sites-only",
+            action="store_true",
+            help="Import only FamilySite/Portfolio seed data without requiring skyview.xlsx",
+        )
 
     def handle(self, *args, **options):
+        if options.get("sites_only"):
+            family_site_count = self._import_family_sites()
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Successfully synced {family_site_count} portfolio sites."
+                )
+            )
+            return
+
         excel_path = Path(options["file"])
         if not excel_path.is_absolute():
             excel_path = settings.BASE_DIR / excel_path
